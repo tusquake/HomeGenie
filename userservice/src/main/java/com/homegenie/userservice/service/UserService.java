@@ -2,12 +2,15 @@ package com.homegenie.userservice.service;
 
 import com.homegenie.userservice.dto.*;
 import com.homegenie.userservice.model.User;
+import com.homegenie.userservice.model.UserRole;
 import com.homegenie.userservice.repository.UserRepository;
 import com.homegenie.userservice.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +33,20 @@ public class UserService {
         user.setPhoneNumber(request.getPhoneNumber());
         user.setFlatNumber(request.getFlatNumber());
 
+        // Set role if provided
+        if (request.getRole() != null && !request.getRole().isEmpty()) {
+            try {
+                user.setRole(UserRole.valueOf(request.getRole().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                user.setRole(UserRole.RESIDENT);
+            }
+        }
+
+        // Set specialty for technicians
+        if (user.getRole() == UserRole.TECHNICIAN && request.getSpecialty() != null) {
+            user.setSpecialty(request.getSpecialty());
+        }
+
         User savedUser = userRepository.save(user);
 
         String token = jwtUtil.generateToken(
@@ -44,6 +61,7 @@ public class UserService {
         response.setFullName(savedUser.getFullName());
         response.setRole(savedUser.getRole().name());
         response.setUserId(savedUser.getId());
+        response.setSpecialty(savedUser.getSpecialty());
 
         return response;
     }
@@ -72,6 +90,7 @@ public class UserService {
         response.setFullName(user.getFullName());
         response.setRole(user.getRole().name());
         response.setUserId(user.getId());
+        response.setSpecialty(user.getSpecialty());
 
         return response;
     }
@@ -80,6 +99,24 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        return mapToUserResponse(user);
+    }
+
+    public List<UserResponse> getAllTechnicians() {
+        return userRepository.findByRoleAndActive(UserRole.TECHNICIAN, true)
+                .stream()
+                .map(this::mapToUserResponse)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(this::mapToUserResponse)
+                .collect(Collectors.toList());
+    }
+
+    private UserResponse mapToUserResponse(User user) {
         UserResponse response = new UserResponse();
         response.setId(user.getId());
         response.setEmail(user.getEmail());
@@ -87,8 +124,9 @@ public class UserService {
         response.setPhoneNumber(user.getPhoneNumber());
         response.setFlatNumber(user.getFlatNumber());
         response.setRole(user.getRole().name());
+        response.setSpecialty(user.getSpecialty());
         response.setActive(user.isActive());
-
+        response.setEmailNotificationsEnabled(user.isEmailNotificationsEnabled());
         return response;
     }
 }

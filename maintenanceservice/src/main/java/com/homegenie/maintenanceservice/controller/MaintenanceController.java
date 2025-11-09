@@ -55,4 +55,9 @@ public class MaintenanceController {
     public ResponseEntity<Map<String, Long>> getStatistics() {
         return ResponseEntity.ok(maintenanceService.getStatistics());
     }
+
+    @GetMapping("/technicians")
+    public ResponseEntity<List<UserResponse>> getTechnicians() {
+        return ResponseEntity.ok(maintenanceService.getAllTechnicians());
+    }
 }

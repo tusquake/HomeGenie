@@ -1,9 +1,8 @@
-// RequestsList.jsx
 import { AlertCircle } from 'lucide-react';
 import React from 'react';
-import RequestCard from './RequestCard';
+import RequestCard from './RequestCard.jsx';
 
-const RequestsList = ({ requests, loading, currentUser, onAssign, onUpdateStatus, setView }) => {
+const RequestsList = ({ requests, loading, currentUser, onAssign, onUpdateStatus, setView, technicians = [] }) => {
     if (loading) {
         return (
             <div className="text-center py-12">
@@ -39,6 +38,7 @@ const RequestsList = ({ requests, loading, currentUser, onAssign, onUpdateStatus
                     currentUser={currentUser}
                     onAssign={onAssign}
                     onUpdateStatus={onUpdateStatus}
+                    technicians={technicians}
                 />
             ))}
         </div>

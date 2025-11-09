@@ -31,10 +31,16 @@ public class User {
 
     private String flatNumber;
 
+    // For technicians - their area of expertise
+    private String specialty;
+
     @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.RESIDENT;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
     private boolean active = true;
+
+    // Email notification preferences
+    private boolean emailNotificationsEnabled = true;
 }

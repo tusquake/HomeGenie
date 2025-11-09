@@ -1,11 +1,13 @@
 // App.jsx
 import React, { useEffect, useState } from 'react';
-import AuthForm from './components//AuthForm';
-import AssignmentModal from "./components/AssignmentModal.jsx";
-import CreateRequestForm from './components/CreateRequestForm';
-import Dashboard from './components/Dashboard';
-import Header from './components/Header';
-import { API_BASE_MAINTENANCE, API_BASE_USER, TECHNICIANS } from './utils/constants';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import AssignmentModal from './components/AssignmentModal.jsx';
+import AuthForm from './components/AuthForm.jsx';
+import CreateRequestForm from './components/CreateRequestForm.jsx';
+import Dashboard from './components/Dashboard.jsx';
+import Header from './components/Header.jsx';
+import { API_BASE_MAINTENANCE, API_BASE_USER } from './utils/constants.js';
 
 const HomeGenieApp = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -61,10 +63,10 @@ const HomeGenieApp = () => {
         setView('dashboard');
         loadRequests(data);
       } else {
-        alert('Login failed. Check credentials.');
+        toast.error('Login failed. Check credentials.');
       }
     } catch (err) {
-      alert('Error: ' + err.message);
+      toast.error('Error: ' + err.message);
     }
     setLoading(false);
   };
@@ -86,10 +88,10 @@ const HomeGenieApp = () => {
         setView('dashboard');
         loadRequests(data);
       } else {
-        alert('Registration failed');
+        toast.error('Registration failed');
       }
     } catch (err) {
-      alert('Error: ' + err.message);
+      toast.error('Error: ' + err.message);
     }
     setLoading(false);
   };
@@ -113,7 +115,7 @@ const HomeGenieApp = () => {
           setStats(await statsRes.json());
         }
 
-        loadTechnicians();
+        await loadTechnicians();
       }
     } catch (err) {
       console.error('Failed to load requests', err);
@@ -121,8 +123,18 @@ const HomeGenieApp = () => {
     setLoading(false);
   };
 
-  const loadTechnicians = () => {
-    setTechnicians(TECHNICIANS);
+  const loadTechnicians = async () => {
+    try {
+      const res = await fetch(`${API_BASE_MAINTENANCE}/maintenance/technicians`);
+      if (res.ok) {
+        const data = await res.json();
+        setTechnicians(data);
+      } else {
+        console.error('Failed to fetch technicians');
+      }
+    } catch (err) {
+      console.error('Failed to load technicians', err);
+    }
   };
 
   const handleCreateRequest = async (e) => {
@@ -139,13 +151,13 @@ const HomeGenieApp = () => {
       });
 
       if (res.ok) {
-        alert('✅ Request created! AI is analyzing and admin will be notified via email.');
+        toast.success('✅ Request created! AI is analyzing and admin will be notified via email.');
         setNewRequest({ title: '', description: '', imageBase64: '' });
         setView('dashboard');
         loadRequests(currentUser);
       }
     } catch (err) {
-      alert('Error: ' + err.message);
+      toast.error('Error: ' + err.message);
     }
     setLoading(false);
   };
@@ -158,9 +170,9 @@ const HomeGenieApp = () => {
         body: JSON.stringify({ status })
       });
       loadRequests(currentUser);
-      alert('✅ Status updated! Resident will be notified via email.');
+      toast.success('✅ Status updated! Resident will be notified via email.');
     } catch (err) {
-      alert('Failed to update');
+      toast.error('Failed to update');
     }
   };
 
@@ -177,9 +189,9 @@ const HomeGenieApp = () => {
       setShowAssignModal(false);
       setSelectedRequest(null);
       loadRequests(currentUser);
-      alert('✅ Technician assigned! They will receive an email notification.');
+      toast.success('✅ Technician assigned! They will receive an email notification.');
     } catch (err) {
-      alert('Failed to assign technician');
+      toast.error('Failed to assign technician');
     }
   };
 
@@ -188,6 +200,7 @@ const HomeGenieApp = () => {
     setCurrentUser(null);
     setView('login');
     setRequests([]);
+    setTechnicians([]);
   };
 
   const handleAssignRequest = (request) => {
@@ -226,6 +239,7 @@ const HomeGenieApp = () => {
           onAssign={handleAssignRequest}
           onUpdateStatus={updateRequestStatus}
           setView={setView}
+          technicians={technicians}
         />
       )}
 
@@ -250,6 +264,7 @@ const HomeGenieApp = () => {
           }}
         />
       )}
+      <ToastContainer position="bottom-right" autoClose={5000} hideProgressBar={false} newestOnTop={false} closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
     </div>
   );
 };

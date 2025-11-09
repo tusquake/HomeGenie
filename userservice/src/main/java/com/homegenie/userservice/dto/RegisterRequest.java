@@ -4,10 +4,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 public class RegisterRequest {
 
     @NotBlank(message = "Email is required")
@@ -25,4 +23,8 @@ public class RegisterRequest {
     private String phoneNumber;
 
     private String flatNumber;
+
+    // Optional: For technician registration
+    private String role; // RESIDENT, TECHNICIAN, ADMIN
+    private String specialty; // Plumber, Electrician, etc.
 }

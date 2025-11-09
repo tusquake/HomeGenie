@@ -1,4 +1,3 @@
-// AuthForm.jsx
 import { Home } from 'lucide-react';
 import React from 'react';
 

@@ -1,4 +1,3 @@
-// StatisticsCards.jsx
 import React from 'react';
 
 const StatisticsCards = ({ stats }) => {

@@ -16,10 +16,10 @@ public class MaintenanceserviceApplication {
 		SpringApplication.run(MaintenanceserviceApplication.class, args);
 	}
 
-	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
+//	@Bean
+//	public RestTemplate restTemplate() {
+//		return new RestTemplate();
+//	}
 
 	@Bean
 	public WebMvcConfigurer corsConfigurer() {

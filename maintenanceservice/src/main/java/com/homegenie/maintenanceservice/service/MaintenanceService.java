@@ -52,7 +52,7 @@ public class MaintenanceService {
         // Upload image if provided
         if (dto.getImageBase64() != null && !dto.getImageBase64().isEmpty()) {
             try {
-                String imageUrl = s3Service.uploadImage(dto.getImageBase64());
+                String imageUrl = String.valueOf(s3Service.uploadImage(dto.getImageBase64()));
                 request.setImageUrl(imageUrl);
             } catch (Exception e) {
                 log.error("Failed to upload image, continuing without it", e);
@@ -73,6 +73,24 @@ public class MaintenanceService {
             log.info("Admin notification sent for request ID: {}", saved.getId());
         } catch (Exception e) {
             log.error("Failed to send admin notification", e);
+        }
+
+        if (saved.getAssignedTo() != null) {
+            try {
+                UserResponse technician = getUserDetails(saved.getAssignedTo());
+                emailService.notifyTechnicianAssignment(
+                        technician.getEmail(),
+                        technician.getFullName(),
+                        saved.getTitle(),
+                        saved.getCategory().toString(),
+                        saved.getPriority().toString(),
+                        saved.getId()
+                );
+                log.info("Technician notification sent to: {} (ID: {})",
+                        technician.getEmail(), technician.getId());
+            } catch (Exception e) {
+                log.error("Failed to send technician notification", e);
+            }
         }
 
         return mapToResponseDTO(saved);
@@ -98,39 +116,70 @@ public class MaintenanceService {
 
     @Transactional
     public MaintenanceResponseDTO updateRequest(Long id, UpdateRequestDTO dto) {
+        log.info("Updating maintenance request ID: {} with data: {}", id, dto);
+
         MaintenanceRequest request = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
 
         Status oldStatus = request.getStatus();
+        Long oldAssignedTo = request.getAssignedTo();
+
+        log.info("Current state - Status: {}, AssignedTo: {}", oldStatus, oldAssignedTo);
+        log.info("Update DTO - Status: {}, AssignedTo: {}, AdminNotes: {}",
+                dto.getStatus(), dto.getAssignedTo(), dto.getAdminNotes());
 
         if (dto.getStatus() != null) {
+            log.info("Updating status from {} to {}", oldStatus, dto.getStatus());
             request.setStatus(dto.getStatus());
             if (dto.getStatus() == Status.COMPLETED) {
                 request.setResolvedAt(LocalDateTime.now());
+                log.info("Request marked as completed at: {}", request.getResolvedAt());
             }
         }
 
         if (dto.getAssignedTo() != null) {
-            request.setAssignedTo(dto.getAssignedTo());
-            if (request.getStatus() == Status.PENDING) {
-                request.setStatus(Status.IN_PROGRESS);
-            }
+            log.info("Assignment requested - Old: {}, New: {}", oldAssignedTo, dto.getAssignedTo());
 
-            // Send notification to technician
-            try {
-                UserResponse technician = getUserDetails(dto.getAssignedTo());
-                emailService.notifyTechnicianAssignment(
-                        technician.getEmail(),
-                        technician.getFullName(),
-                        request.getTitle(),
-                        request.getCategory().toString(),
-                        request.getPriority().toString(),
-                        request.getId()
-                );
-                log.info("Technician notification sent to: {}", technician.getEmail());
-            } catch (Exception e) {
-                log.error("Failed to send technician notification", e);
+            if (!dto.getAssignedTo().equals(oldAssignedTo)) {
+                log.info("Assigning technician ID: {} to request ID: {}", dto.getAssignedTo(), id);
+                request.setAssignedTo(dto.getAssignedTo());
+
+                // Change status to IN_PROGRESS if it was PENDING
+                if (request.getStatus() == Status.PENDING) {
+                    log.info("Changing status from PENDING to IN_PROGRESS");
+                    request.setStatus(Status.IN_PROGRESS);
+                }
+
+                // Send notification to new technician
+                try {
+                    log.info("Fetching technician details for ID: {}", dto.getAssignedTo());
+                    UserResponse technician = getUserDetails(dto.getAssignedTo());
+
+                    if (technician == null) {
+                        log.error("Technician not found for ID: {}", dto.getAssignedTo());
+                    } else {
+                        log.info("Sending notification to technician: {} ({})",
+                                technician.getFullName(), technician.getEmail());
+
+                        emailService.notifyTechnicianAssignment(
+                                technician.getEmail(),
+                                technician.getFullName(),
+                                request.getTitle(),
+                                request.getCategory().toString(),
+                                request.getPriority().toString(),
+                                request.getId()
+                        );
+                        log.info("Technician notification sent successfully to: {} (ID: {})",
+                                technician.getEmail(), technician.getId());
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to send technician notification: {}", e.getMessage(), e);
+                }
+            } else {
+                log.info("Technician unchanged, skipping notification");
             }
+        } else {
+            log.info("No technician assignment in update request");
         }
 
         if (dto.getAdminNotes() != null) {
@@ -186,8 +235,6 @@ public class MaintenanceService {
             dummy.setId(userId);
             dummy.setEmail("unknown@example.com");
             dummy.setFullName("Unknown User");
-
-            log.info("Returning dummy user details for ID: {}", userId);
             return dummy;
         }
     }
@@ -238,4 +285,26 @@ public class MaintenanceService {
         dto.setAdminNotes(request.getAdminNotes());
         return dto;
     }
+
+    public List<UserResponse> getAllTechnicians() {
+        try {
+            String url = userServiceUrl + "/api/users/technicians";
+            log.info("Fetching all technicians from User Service: {}", url);
+
+            UserResponse[] response = restTemplate.getForObject(url, UserResponse[].class);
+
+            if (response == null) {
+                log.warn("No technicians received from User Service");
+                return List.of();
+            }
+
+            log.info("Successfully fetched {} technicians", response.length);
+            return List.of(response);
+
+        } catch (Exception e) {
+            log.error("Failed to fetch technicians from User Service", e);
+            return List.of();
+        }
+    }
+
 }

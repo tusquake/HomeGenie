@@ -24,7 +24,6 @@ public class MaintenanceScheduler {
     private final EmailNotificationService emailService;
     private final MaintenanceService maintenanceService; // to fetch user details
 
-    // 🕒 Runs every 6 hours (change cron if needed)
     // Format: second, minute, hour, day of month, month, day of week
     @Scheduled(cron = "0 0 */6 * * *") // every 6 hours
     public void checkPendingRequests() {
@@ -40,11 +39,9 @@ public class MaintenanceScheduler {
 
                 if (hoursPending >= 24) {
                     try {
-                        // 🔹 Fetch user details via user microservice through MaintenanceService
                         UserResponse user = maintenanceService.getUserDetails(request.getUserId());
                         log.info("Request {} pending for {} hours. Sending reminder email...", request.getId(), hoursPending);
 
-                        // 🔹 Send reminder email to admin (you can add technician reminder too if needed)
                         emailService.notifyAdminNewRequest(
                                 user.getFullName(),
                                 request.getTitle(),
@@ -55,7 +52,7 @@ public class MaintenanceScheduler {
 
                         log.info("Reminder email sent for request ID: {}", request.getId());
                     } catch (Exception e) {
-                        log.error("❌ Failed to send reminder email for request ID {}", request.getId(), e);
+                        log.error("Failed to send reminder email for request ID {}", request.getId(), e);
                     }
                 }
             }

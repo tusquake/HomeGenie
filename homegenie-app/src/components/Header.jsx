@@ -1,4 +1,3 @@
-// Header.jsx
 import { Bell, Home, LogOut } from 'lucide-react';
 import React from 'react';
 

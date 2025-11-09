@@ -1,9 +1,24 @@
-// RequestCard.jsx
 import { Users } from 'lucide-react';
-import React from 'react';
-import { getCategoryIcon, getPriorityColor, getStatusIcon } from '../../src/utils/utils.jsx';
+import React, { useState } from 'react';
+import { getCategoryIcon, getPriorityColor, getStatusIcon } from '../../src/utils/utils';
 
-const RequestCard = ({ request, currentUser, onAssign, onUpdateStatus }) => {
+const RequestCard = ({ request, currentUser, onAssign, onUpdateStatus, technicians = [] }) => {
+    const [isCompleting, setIsCompleting] = useState(false);
+
+    const handleComplete = async () => {
+        setIsCompleting(true);
+        try {
+            await onUpdateStatus(request.id, 'COMPLETED');
+        } catch (error) {
+            console.error('Failed to complete request:', error);
+        } finally {
+            setIsCompleting(false);
+        }
+    };
+
+    // Find the assigned technician details
+    const assignedTechnician = technicians.find(tech => tech.userId === request.assignedTo);
+
     return (
         <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition p-6">
             <div className="flex justify-between items-start mb-4">
@@ -39,9 +54,34 @@ const RequestCard = ({ request, currentUser, onAssign, onUpdateStatus }) => {
             </div>
 
             {request.assignedTo && (
-                <div className="mb-4 p-2 bg-blue-50 rounded-lg flex items-center gap-2">
-                    <Users className="w-4 h-4 text-blue-600" />
-                    <span className="text-xs text-blue-700">Assigned to Technician #{request.assignedTo}</span>
+                <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                    <div className="flex items-start gap-2">
+                        <Users className="w-4 h-4 text-blue-600 mt-0.5" />
+                        <div className="flex-1">
+                            <p className="text-xs font-medium text-blue-900">Assigned Technician</p>
+                            {assignedTechnician ? (
+                                <>
+                                    <p className="text-sm font-semibold text-blue-800">{assignedTechnician.fullName}</p>
+                                    <p className="text-xs text-blue-600">{assignedTechnician.email}</p>
+                                    {assignedTechnician.phoneNumber && (
+                                        <p className="text-xs text-blue-600">📞 {assignedTechnician.phoneNumber}</p>
+                                    )}
+                                </>
+                            ) : (
+                                <p className="text-xs text-blue-700">Technician ID: #{request.assignedTo}</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Loading indicator when completing */}
+            {isCompleting && (
+                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 text-green-600 animate-spin" />
+                        <p className="text-sm text-green-800">Marking as complete and notifying resident...</p>
+                    </div>
                 </div>
             )}
 
@@ -50,17 +90,32 @@ const RequestCard = ({ request, currentUser, onAssign, onUpdateStatus }) => {
                     {request.status === 'PENDING' && !request.assignedTo && (
                         <button
                             onClick={() => onAssign(request)}
-                            className="flex-1 bg-indigo-100 text-indigo-700 py-2 rounded-lg text-sm font-medium hover:bg-indigo-200 transition"
+                            disabled={isCompleting}
+                            className={`flex-1 bg-indigo-100 text-indigo-700 py-2 rounded-lg text-sm font-medium transition ${isCompleting
+                                ? 'opacity-50 cursor-not-allowed'
+                                : 'hover:bg-indigo-200'
+                                }`}
                         >
                             Assign Technician
                         </button>
                     )}
                     {request.assignedTo && request.status === 'IN_PROGRESS' && (
                         <button
-                            onClick={() => onUpdateStatus(request.id, 'COMPLETED')}
-                            className="flex-1 bg-green-100 text-green-700 py-2 rounded-lg text-sm font-medium hover:bg-green-200 transition"
+                            onClick={handleComplete}
+                            disabled={isCompleting}
+                            className={`flex-1 bg-green-100 text-green-700 py-2 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 ${isCompleting
+                                ? 'opacity-50 cursor-not-allowed'
+                                : 'hover:bg-green-200'
+                                }`}
                         >
-                            Mark Complete
+                            {isCompleting ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    <span>Completing...</span>
+                                </>
+                            ) : (
+                                'Mark Complete'
+                            )}
                         </button>
                     )}
                 </div>

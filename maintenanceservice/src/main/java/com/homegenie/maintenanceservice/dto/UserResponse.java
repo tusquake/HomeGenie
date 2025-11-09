@@ -10,5 +10,7 @@ public class UserResponse {
     private String phoneNumber;
     private String flatNumber;
     private String role;
+    private String specialty;
     private boolean active;
+    private boolean emailNotificationsEnabled;
 }

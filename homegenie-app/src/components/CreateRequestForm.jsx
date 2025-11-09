@@ -1,13 +1,13 @@
-// CreateRequestForm.jsx
 import { Camera, TrendingUp } from 'lucide-react';
 import React from 'react';
+import { toast } from 'react-toastify';
 
 const CreateRequestForm = ({ newRequest, setNewRequest, onSubmit, onCancel, loading }) => {
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
             if (file.size > 5 * 1024 * 1024) {
-                alert('Image size should be less than 5MB');
+                toast.error('Image size should be less than 5MB');
                 return;
             }
             const reader = new FileReader();

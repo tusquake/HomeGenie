@@ -19,11 +19,3 @@ export const CATEGORY_ICONS = {
     HVAC: '❄️',
     OTHERS: '📦'
 };
-
-export const TECHNICIANS = [
-    { id: 2, name: 'Rajesh Kumar', specialty: 'Plumber' },
-    { id: 3, name: 'Amit Sharma', specialty: 'Electrician' },
-    { id: 4, name: 'Vikram Patel', specialty: 'Cleaner' },
-    { id: 5, name: 'Suresh Reddy', specialty: 'Carpenter' },
-    { id: 6, name: 'Arjun Mehta', specialty: 'HVAC Technician' }
-];

@@ -46,10 +46,6 @@ public class EmailNotificationService {
 
     private AmazonSimpleEmailService sesClient;
 
-    // ==============================================================
-    // 🟢 MAIN PUBLIC METHODS — Common for both SES & SMTP
-    // ==============================================================
-
     public void notifyAdminNewRequest(String userName, String requestTitle,
                                       String category, String priority, Long requestId) {
         String subject = "🔔 New Maintenance Request - " + priority + " Priority";
@@ -73,10 +69,6 @@ public class EmailNotificationService {
         sendEmail(residentEmail, subject, htmlBody);
     }
 
-    // ==============================================================
-    // ✉️  Core email sender logic (Dynamic Switch)
-    // ==============================================================
-
     private void sendEmail(String to, String subject, String htmlBody) {
         try {
             if ("ses".equalsIgnoreCase(emailProvider)) {
@@ -85,11 +77,10 @@ public class EmailNotificationService {
                 sendViaSMTP(to, subject, htmlBody);
             }
         } catch (Exception e) {
-            log.error("❌ Failed to send email to {}", to, e);
+            log.error("Failed to send email to {}", to, e);
         }
     }
 
-    // ---- SMTP Version ----
     private void sendViaSMTP(String to, String subject, String htmlBody) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -101,7 +92,6 @@ public class EmailNotificationService {
         log.info("✅ SMTP email sent to {}", to);
     }
 
-    // ---- AWS SES Version ----
     private void sendViaSES(String to, String subject, String htmlBody) {
         if (sesClient == null) {
             BasicAWSCredentials creds = new BasicAWSCredentials(accessKey, secretKey);
@@ -121,10 +111,6 @@ public class EmailNotificationService {
         sesClient.sendEmail(request);
         log.info("✅ AWS SES email sent to {}", to);
     }
-
-    // ==============================================================
-    // 📄 HTML templates (reuse from your existing code)
-    // ==============================================================
 
     private String buildNewRequestEmailHtml(String userName, String requestTitle,
                                             String category, String priority, Long requestId) {
