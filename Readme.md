@@ -1,5 +1,7 @@
 # HomeGenie - Smart Maintenance Management System
 
+![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
+
 ![Java](https://img.shields.io/badge/Java-17-orange?logo=java)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.6-green?logo=spring)
 ![React](https://img.shields.io/badge/React-18-blue?logo=react)
@@ -29,6 +31,23 @@ HomeGenie is an AI-powered maintenance management platform designed for resident
 6.Assign Technician
 <img width="1895" height="1078" alt="image" src="https://github.com/user-attachments/assets/015232f2-a601-4032-84d9-01f0feada49f" />
 
+7.Voice Assitant
+<img width="1902" height="1079" alt="image" src="https://github.com/user-attachments/assets/4b42d4e0-a911-42fd-b512-58eb66bc1d34" />
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/661fddb9-25a9-4325-b647-e06dde59519e" />
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/be46800c-233d-49d4-933d-57a3310ac7f2" />
+
+Email Notifications:
+User-> Admin (on request creation)
+<img width="1838" height="840" alt="image" src="https://github.com/user-attachments/assets/cfa1f126-2a56-47fd-bac1-7cbc3bc5d903" />
+
+Admin-> Technician (on assigning request)
+<img width="1842" height="826" alt="image" src="https://github.com/user-attachments/assets/a660efbc-69ce-4276-8517-b9328c4068a5" />
+
+Admin-> User(on request status update)
+<img width="1832" height="800" alt="image" src="https://github.com/user-attachments/assets/d46d7064-9181-4bcf-93dd-9b35be7789c8" />
+
 ---
 
 
@@ -45,11 +64,28 @@ The platform uses AI to classify issues by category and priority and provides re
 - No centralized reporting or accountability
 
 ### Solution Highlights
+- Speech-to-Text: Converts voice commands to text using Google Speech Recognition
+- Intent Recognition: Uses Google Gemini / Hugging Face AI to understand user requests
 - Centralized management of all maintenance requests
 - AI-driven categorization and prioritization
 - Email notifications to all stakeholders
 - Real-time tracking of progress and completion
 - Cloud-based storage for uploaded issue photos
+  
+**Example Interactions:**
+```
+User: "My kitchen sink is leaking"
+AI: "I've created your maintenance request for a plumbing issue 
+     with high priority. Ticket #41 has been submitted."
+
+User: "Emergency! Water flooding my apartment!"
+AI: "I've detected an emergency. Creating critical priority ticket 
+     immediately. Help is on the way!"
+
+User: "What's the status of my AC repair?"
+AI: "Your AC repair request #41 is in progress. Technician 
+     will arrive tomorrow between 2-4 PM."
+```
 
 ---
 
@@ -187,4 +223,3 @@ AWS Integration
    npm install
    npm start
    ```
-
