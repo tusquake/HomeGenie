@@ -48,6 +48,16 @@ Admin-> Technician (on assigning request)
 Admin-> User(on request status update)
 <img width="1832" height="800" alt="image" src="https://github.com/user-attachments/assets/d46d7064-9181-4bcf-93dd-9b35be7789c8" />
 
+Monitoring:
+
+Grafana:
+
+<img width="1896" height="1080" alt="image" src="https://github.com/user-attachments/assets/9842caaa-f5bd-4105-b599-3c2965ea975b" />
+
+Prometheus:
+
+<img width="1898" height="1077" alt="image" src="https://github.com/user-attachments/assets/871e9b6a-eee3-481c-bcc3-65e9d1035bb6" />
+
 ---
 
 
