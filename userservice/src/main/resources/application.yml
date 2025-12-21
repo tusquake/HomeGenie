@@ -21,7 +21,7 @@ spring:
         format_sql: true
 
 jwt:
-  secret: aVeryLongSecretKeyThatIsAtLeast256BitsForHS256Algorithm
+  secret: 
   expiration: 86400000
 
 logging:

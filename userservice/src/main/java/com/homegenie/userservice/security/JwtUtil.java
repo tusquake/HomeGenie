@@ -10,10 +10,10 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    @Value("${jwt.secret:aVeryLongSecretKeyThatIsAtLeast256BitsForHS256Algorithm}")
+    @Value("${jwt.secret}")
     private String secret;
 
-    @Value("${jwt.expiration:86400000}") // 24 hours
+    @Value("${jwt.expiration}") // 24 hours
     private Long expiration;
 
     private Key getSigningKey() {
