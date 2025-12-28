@@ -229,7 +229,17 @@ AWS Integration
 
 5. Start frontend:
    ```bash
-   cd frontend
+   cd homegenie-app
    npm install
    npm start
    ```
+
+   # 🚀 Future Enhancements
+
+- Dedicated **Technician Dashboard** for task acceptance, status updates, and ETA tracking  
+- **Event-driven notification system** to decouple alerts from core business logic  
+- **Multi-channel notifications** (Email, SMS, Push) for critical and emergency requests  
+- **Resilience mechanisms** (circuit breakers, retries, fallbacks) for external services  
+- **Audit logs & request history** for traceability and accountability  
+- **Advanced analytics & predictive insights** using historical maintenance data  
+
