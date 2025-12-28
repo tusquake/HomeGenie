@@ -19,8 +19,8 @@ HomeGenie is an AI-powered maintenance management platform designed for resident
 2.Login
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9453e72e-e274-44c2-ad8a-977353fa3ea1" />
 
-3. Dashboard (Resident)
-   <img width="1898" height="1080" alt="image" src="https://github.com/user-attachments/assets/e4c3699e-0e03-42e5-b350-bd930cc3c09d" />
+3.Dashboard (Resident)
+<img width="1898" height="1080" alt="image" src="https://github.com/user-attachments/assets/e4c3699e-0e03-42e5-b350-bd930cc3c09d" />
 
 4.Create New Request(Resident)
 <img width="1903" height="1080" alt="image" src="https://github.com/user-attachments/assets/a75ef4fd-89f7-4786-a062-c512d7fab699" />
@@ -234,7 +234,7 @@ AWS Integration
    npm start
    ```
 
-   # 🚀 Future Enhancements
+   # Future Enhancements
 
 - Dedicated **Technician Dashboard** for task acceptance, status updates, and ETA tracking  
 - **Event-driven notification system** to decouple alerts from core business logic  
