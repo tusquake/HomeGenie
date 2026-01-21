@@ -144,18 +144,27 @@ React Frontend (Port 3000)
   - Request creation and tracking
   - Admin dashboard
   - Technician assignment
-
-User Service (Port 8081)
-  - Authentication (JWT)
-  - User management
-  - Role-based access control
-  - Technician directory
-
-Maintenance Service (Port 8082)
-  - Request management (CRUD)
-  - AI classification and priority assignment
-  - Email notifications and scheduling
-  - Statistics and analytics
+        │
+        ▼
+API Gateway (Port 8080) ─────────────────────────────────────
+  │                                                          │
+  ├─► User Service (Port 8081)                               │
+  │     - Authentication (JWT)                               │
+  │     - User management                                    │
+  │     - Role-based access control                          │
+  │     - Technician directory                               │
+  │                                                          │
+  ├─► Maintenance Service (Port 8082)                        │
+  │     - Request management (CRUD)                          │
+  │     - AI classification and priority assignment          │
+  │     - Email notifications and scheduling                 │
+  │     - Statistics and analytics                           │
+  │                                                          │
+  └─► Python Voice Service (Port 8000)                       │
+        - Speech-to-Text (Google Speech Recognition)         │
+        - Text-to-Speech (gTTS)                              │
+        - AI Intent Recognition (Gemini 2.0 Flash)           │
+─────────────────────────────────────────────────────────────┘
 
 PostgreSQL Databases
   - homegenie_users
@@ -169,10 +178,43 @@ AWS Integration
 
 ---
 
+## API Gateway
+
+The API Gateway is implemented using **Spring Cloud Gateway** (free, open-source) and serves as a single entry point for all backend services.
+
+### How It Works
+
+1. **Single Entry Point**: All API requests from the frontend go to `http://localhost:8080`
+2. **Route Matching**: The gateway matches incoming requests by path patterns
+3. **Request Forwarding**: Requests are forwarded to the appropriate backend service
+4. **Response Relay**: Service responses are relayed back to the frontend
+
+### Route Configuration
+
+| Route Pattern | Target Service | Port |
+|---------------|----------------|------|
+| `/api/auth/**` | User Service | 8081 |
+| `/api/users/**` | User Service | 8081 |
+| `/api/technicians/**` | User Service | 8081 |
+| `/api/maintenance/**` | Maintenance Service | 8082 |
+| `/api/speech-to-text` | Voice Service | 8000 |
+| `/api/text-to-speech` | Voice Service | 8000 |
+| `/api/recognize-intent` | Voice Service | 8000 |
+
+### Benefits
+
+- **Simplified Frontend**: Frontend only needs to know one URL
+- **Centralized CORS**: CORS handled at gateway level
+- **Easy Scaling**: Add new services without frontend changes
+- **Future-Ready**: Easy to add rate limiting, authentication, logging
+
+---
+
 ## Tech Stack
 
 **Backend**
 - Spring Boot 3.2.0 (Java 17)
+- Spring Cloud Gateway (API Gateway)
 - Hibernate / JPA
 - PostgreSQL
 - JWT Authentication
@@ -218,13 +260,22 @@ AWS Integration
 
 4. Start backend services:
    ```bash
-   # User Service
-   cd user-service
+   # API Gateway (Port 8080)
+   cd api-gateway
    mvn spring-boot:run
 
-   # Maintenance Service
-   cd maintenance-service
+   # User Service (Port 8081)
+   cd userservice
    mvn spring-boot:run
+
+   # Maintenance Service (Port 8082)
+   cd maintenanceservice
+   mvn spring-boot:run
+
+   # Python Voice Service (Port 8000)
+   cd maintenanceservice/python-voice-service
+   pip install -r requirements.txt
+   python main.py
    ```
 
 5. Start frontend:
