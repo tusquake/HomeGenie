@@ -1,36 +1,17 @@
 import { Loader2 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 const AssignmentModal = ({ request, technicians, onAssign, onClose }) => {
     const [loading, setLoading] = useState(false);
     const [selectedTechId, setSelectedTechId] = useState(null);
 
-    // Debug logging
-    useEffect(() => {
-        console.log('🔧 Technicians data:', technicians);
-        if (technicians.length > 0) {
-            console.log('📋 First technician structure:', technicians[0]);
-        }
-    }, [technicians]);
-
     if (!request) return null;
 
     const handleAssign = async (techId) => {
-        console.log('🎯 Assigning technician:', {
-            requestId: request.id,
-            technicianId: techId,
-            technicianIdType: typeof techId,
-            technicianIdValue: techId
-        });
-
         setLoading(true);
         setSelectedTechId(techId);
-
         try {
             await onAssign(request.id, techId);
-            console.log('✅ Assignment successful');
-        } catch (error) {
-            console.error('❌ Assignment failed:', error);
         } finally {
             setLoading(false);
             setSelectedTechId(null);
@@ -61,21 +42,14 @@ const AssignmentModal = ({ request, technicians, onAssign, onClose }) => {
                         </div>
                     ) : (
                         technicians.map(tech => {
-                            // Try multiple possible ID fields
                             const techId = tech.userId || tech.id;
-
                             return (
                                 <button
                                     key={techId}
                                     onClick={() => handleAssign(techId)}
                                     disabled={loading}
-                                    className={`w-full text-left px-4 py-3 border rounded-lg transition relative ${loading
-                                            ? 'opacity-50 cursor-not-allowed'
-                                            : 'hover:bg-indigo-50 hover:border-indigo-500'
-                                        } ${selectedTechId === techId && loading
-                                            ? 'bg-indigo-50 border-indigo-500'
-                                            : ''
-                                        }`}
+                                    className={`w-full text-left px-4 py-3 border rounded-lg transition ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-indigo-50 hover:border-indigo-500'
+                                        } ${selectedTechId === techId && loading ? 'bg-indigo-50 border-indigo-500' : ''}`}
                                 >
                                     <div className="flex items-center justify-between">
                                         <div>
@@ -84,8 +58,6 @@ const AssignmentModal = ({ request, technicians, onAssign, onClose }) => {
                                             {tech.phoneNumber && (
                                                 <p className="text-xs text-gray-400">📞 {tech.phoneNumber}</p>
                                             )}
-                                            {/* Debug info - remove in production */}
-                                            <p className="text-xs text-red-400">ID: {techId}</p>
                                         </div>
                                         {selectedTechId === techId && loading && (
                                             <Loader2 className="w-5 h-5 text-indigo-600 animate-spin" />
@@ -109,9 +81,7 @@ const AssignmentModal = ({ request, technicians, onAssign, onClose }) => {
                 <button
                     onClick={onClose}
                     disabled={loading}
-                    className={`w-full bg-gray-200 text-gray-700 py-2 rounded-lg transition ${loading
-                            ? 'opacity-50 cursor-not-allowed'
-                            : 'hover:bg-gray-300'
+                    className={`w-full bg-gray-200 text-gray-700 py-2 rounded-lg transition ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300'
                         }`}
                 >
                     Cancel
