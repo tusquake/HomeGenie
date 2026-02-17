@@ -1,0 +1,29 @@
+# Root .gitignore for HomeGenie
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+*.env.local
+
+# Logs
+*.log
+logs/
+
+# Build artifacts
+target/
+build/
+dist/
+node_modules/
+
+# Docker
+docker-compose.override.yml

@@ -6,61 +6,77 @@ spring:
     name: api-gateway
   cloud:
     gateway:
+      default-filters:
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 10
+            redis-rate-limiter.burstCapacity: 20
+            redis-rate-limiter.requestedTokens: 1
+            key-resolver: "#{@userKeyResolver}"
       routes:
-        - id: user-service-auth
-          uri: http://localhost:8081
+        - id: auth-service
+          uri: ${USER_SERVICE_URL:http://localhost:8081}
           predicates:
             - Path=/api/auth/**
 
-        - id: user-service-users
-          uri: http://localhost:8081
+        - id: user-service
+          uri: ${USER_SERVICE_URL:http://localhost:8081}
           predicates:
             - Path=/api/users/**
 
-        - id: user-service-technicians
-          uri: http://localhost:8081
-          predicates:
-            - Path=/api/technicians/**
-
         - id: maintenance-service
-          uri: http://localhost:8082
+          uri: ${MAINTENANCE_SERVICE_URL:http://localhost:8082}
           predicates:
             - Path=/api/maintenance/**
 
         - id: voice-service
-          uri: http://localhost:8000
+          uri: ${VOICE_SERVICE_URL:http://localhost:5000}
           predicates:
-            - Path=/api/speech-to-text, /api/text-to-speech, /api/recognize-intent
+            - Path=/api/voice/**,/api/speech-to-text,/api/text-to-speech,/api/recognize-intent
+
+        - id: notification-service
+          uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/notifications/**
 
       globalcors:
         cors-configurations:
           '[/**]':
             allowedOrigins:
-              - "http://localhost:3000"
-              - "http://localhost:5173"
+              - ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
             allowedMethods:
               - GET
               - POST
               - PUT
               - DELETE
               - OPTIONS
-              - PATCH
-            allowedHeaders: "*"
+            allowedHeaders:
+              - "*"
+            exposedHeaders:
+              - Authorization
             allowCredentials: true
             maxAge: 3600
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      connect-timeout: 2000
+
+jwt:
+  secret: ${JWT_SECRET:homegenie-secret-key-change-in-production-minimum-32-chars}
 
 management:
   endpoints:
     web:
       exposure:
-        include: health, info, gateway
+        include: health,info,gateway
   endpoint:
     gateway:
       enabled: true
-    health:
-      show-details: always
 
 logging:
   level:
-    org.springframework.cloud.gateway: DEBUG
+    root: INFO
     com.homegenie: DEBUG
+    org.springframework.cloud.gateway: INFO

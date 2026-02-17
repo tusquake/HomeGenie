@@ -1,0 +1,45 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: notification-service
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+email:
+  provider: ${EMAIL_PROVIDER:smtp}
+  from: ${EMAIL_FROM:noreply@homegenie.com}
+  admin: ${ADMIN_EMAIL:admin@homegenie.com}
+
+aws:
+  access-key: ${AWS_ACCESS_KEY:none}
+  secret-key: ${AWS_SECRET_KEY:none}
+  region: ${AWS_REGION:us-east-1}
+  ses:
+    from-email: ${SES_FROM_EMAIL:noreply@homegenie.com}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    root: INFO
+    com.homegenie: DEBUG

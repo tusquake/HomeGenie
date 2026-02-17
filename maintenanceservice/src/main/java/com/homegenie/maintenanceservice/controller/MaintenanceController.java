@@ -4,6 +4,9 @@ import com.homegenie.maintenanceservice.dto.*;
 import com.homegenie.maintenanceservice.service.MaintenanceService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -24,8 +27,9 @@ public class MaintenanceController {
     }
 
     @GetMapping
-    public ResponseEntity<List<MaintenanceResponseDTO>> getAllRequests() {
-        return ResponseEntity.ok(maintenanceService.getAllRequests());
+    public ResponseEntity<Page<MaintenanceResponseDTO>> getAllRequests(
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(maintenanceService.getAllRequests(pageable));
     }
 
     @GetMapping("/user/{userId}")
@@ -41,7 +45,7 @@ public class MaintenanceController {
     @PutMapping("/{id}")
     public ResponseEntity<MaintenanceResponseDTO> updateRequest(
             @PathVariable Long id,
-            @RequestBody UpdateRequestDTO request) {
+            @Valid @RequestBody UpdateRequestDTO request) {
         return ResponseEntity.ok(maintenanceService.updateRequest(id, request));
     }
 

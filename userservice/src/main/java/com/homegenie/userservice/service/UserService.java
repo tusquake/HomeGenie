@@ -1,6 +1,9 @@
 package com.homegenie.userservice.service;
 
 import com.homegenie.userservice.dto.*;
+import com.homegenie.userservice.exception.AuthenticationException;
+import com.homegenie.userservice.exception.DuplicateResourceException;
+import com.homegenie.userservice.exception.ResourceNotFoundException;
 import com.homegenie.userservice.model.User;
 import com.homegenie.userservice.model.UserRole;
 import com.homegenie.userservice.repository.UserRepository;
@@ -23,7 +26,7 @@ public class UserService {
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered");
+            throw new DuplicateResourceException("Email already registered: " + request.getEmail());
         }
 
         User user = new User();
@@ -52,8 +55,7 @@ public class UserService {
         String token = jwtUtil.generateToken(
                 savedUser.getEmail(),
                 savedUser.getId(),
-                savedUser.getRole().name()
-        );
+                savedUser.getRole().name());
 
         AuthResponse response = new AuthResponse();
         response.setToken(token);
@@ -68,21 +70,20 @@ public class UserService {
 
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                .orElseThrow(() -> new AuthenticationException("Invalid credentials"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new AuthenticationException("Invalid credentials");
         }
 
         if (!user.isActive()) {
-            throw new RuntimeException("Account is deactivated");
+            throw new AuthenticationException("Account is deactivated");
         }
 
         String token = jwtUtil.generateToken(
                 user.getEmail(),
                 user.getId(),
-                user.getRole().name()
-        );
+                user.getRole().name());
 
         AuthResponse response = new AuthResponse();
         response.setToken(token);
@@ -97,7 +98,7 @@ public class UserService {
 
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
         return mapToUserResponse(user);
     }

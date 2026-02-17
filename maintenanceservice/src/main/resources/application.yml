@@ -1,0 +1,91 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: maintenance-service
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/homegenie_maintenance}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=300s
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+
+user:
+  service:
+    url: ${USER_SERVICE_URL:http://localhost:8081}
+
+voice:
+  service:
+    url: ${VOICE_SERVICE_URL:http://localhost:5000}
+  assistant:
+    timeout: 30000
+
+gcs:
+  bucket-name: ${GCS_BUCKET_NAME:homegenie-uploads}
+  project-id: ${GCS_PROJECT_ID:homegenie}
+
+aws:
+  access-key: ${AWS_ACCESS_KEY:none}
+  secret-key: ${AWS_SECRET_KEY:none}
+  region: ${AWS_REGION:us-east-1}
+  s3:
+    bucket-name: ${S3_BUCKET_NAME:homegenie-uploads}
+
+local:
+  storage:
+    path: ${LOCAL_STORAGE_PATH:./local_images}
+    base-url: ${LOCAL_STORAGE_BASE_URL:http://localhost:8082/local/images}
+
+huggingface:
+  api:
+    token: ${HUGGINGFACE_API_TOKEN:}
+
+ai:
+  classification:
+    enabled: true
+
+email:
+  notification:
+    enabled: ${EMAIL_NOTIFICATION_ENABLED:false}
+    from: ${EMAIL_FROM:noreply@homegenie.com}
+    admin: ${ADMIN_EMAIL:admin@homegenie.com}
+    provider: ${EMAIL_PROVIDER:smtp}
+  smtp:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    root: INFO
+    com.homegenie: DEBUG

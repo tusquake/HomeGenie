@@ -1,16 +1,17 @@
 package com.homegenie.maintenanceservice.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "maintenance_requests")
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 public class MaintenanceRequest {
 
     @Id
@@ -23,7 +24,7 @@ public class MaintenanceRequest {
     @Column(nullable = false)
     private String title;
 
-    @Column(length = 2000)
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Enumerated(EnumType.STRING)
@@ -39,11 +40,16 @@ public class MaintenanceRequest {
 
     private Long assignedTo;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private String adminNotes;
 
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 
     private LocalDateTime resolvedAt;
 
-    private String adminNotes;
+    private LocalDateTime lastReminderSentAt;
 }

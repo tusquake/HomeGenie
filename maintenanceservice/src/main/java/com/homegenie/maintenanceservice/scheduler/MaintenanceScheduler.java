@@ -1,15 +1,14 @@
 package com.homegenie.maintenanceservice.scheduler;
 
-import com.homegenie.maintenanceservice.dto.UserResponse;
+import com.homegenie.maintenanceservice.event.NotificationPublisher;
 import com.homegenie.maintenanceservice.model.MaintenanceRequest;
 import com.homegenie.maintenanceservice.model.Status;
 import com.homegenie.maintenanceservice.repository.MaintenanceRepository;
-import com.homegenie.maintenanceservice.service.EmailNotificationService;
-import com.homegenie.maintenanceservice.service.MaintenanceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -21,40 +20,36 @@ import java.util.List;
 public class MaintenanceScheduler {
 
     private final MaintenanceRepository repository;
-    private final EmailNotificationService emailService;
-    private final MaintenanceService maintenanceService; // to fetch user details
+    private final NotificationPublisher notificationPublisher;
 
-    // Format: second, minute, hour, day of month, month, day of week
-    @Scheduled(cron = "0 0 */6 * * *") // every 6 hours
+    @Scheduled(fixedRate = 3600000) // Every hour
+    @Transactional
     public void checkPendingRequests() {
-        log.info("🔍 Running scheduled check for pending maintenance requests...");
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
+        List<MaintenanceRequest> pendingRequests = repository.findByStatusAndCreatedAtBefore(Status.PENDING, cutoff);
 
-        List<MaintenanceRequest> pendingRequests = repository.findByStatus(Status.PENDING);
-        LocalDateTime now = LocalDateTime.now();
+        log.info("Found {} pending requests older than 24 hours", pendingRequests.size());
 
         for (MaintenanceRequest request : pendingRequests) {
-            if (request.getCreatedAt() != null) {
-                Duration duration = Duration.between(request.getCreatedAt(), now);
-                long hoursPending = duration.toHours();
+            // Skip if reminder was sent within the last 24 hours
+            if (request.getLastReminderSentAt() != null
+                    && request.getLastReminderSentAt().isAfter(LocalDateTime.now().minusHours(24))) {
+                continue;
+            }
 
-                if (hoursPending >= 24) {
-                    try {
-                        UserResponse user = maintenanceService.getUserDetails(request.getUserId());
-                        log.info("Request {} pending for {} hours. Sending reminder email...", request.getId(), hoursPending);
+            long hoursPending = Duration.between(request.getCreatedAt(), LocalDateTime.now()).toHours();
 
-                        emailService.notifyAdminNewRequest(
-                                user.getFullName(),
-                                request.getTitle(),
-                                request.getCategory().toString(),
-                                request.getPriority().toString(),
-                                request.getId()
-                        );
-
-                        log.info("Reminder email sent for request ID: {}", request.getId());
-                    } catch (Exception e) {
-                        log.error("Failed to send reminder email for request ID {}", request.getId(), e);
-                    }
-                }
+            try {
+                notificationPublisher.publishReminder(
+                        "admin@homegenie.com",
+                        request.getTitle(),
+                        request.getId(),
+                        hoursPending);
+                request.setLastReminderSentAt(LocalDateTime.now());
+                repository.save(request);
+                log.info("Reminder published for request #{} (pending {} hours)", request.getId(), hoursPending);
+            } catch (Exception e) {
+                log.error("Failed to publish reminder for request #{}", request.getId(), e);
             }
         }
     }
