@@ -1,6 +1,7 @@
 // VoiceAssistant.jsx
 import { CheckCircle, Loader, Mic, MicOff, Send, Volume2, VolumeX, XCircle } from 'lucide-react';
 import React, { useRef, useState } from 'react';
+import { API_BASE_MAINTENANCE } from '../utils/constants';
 
 const VoiceAssistant = ({ currentUser, onRequestCreated }) => {
     const [isRecording, setIsRecording] = useState(false);
@@ -94,7 +95,7 @@ const VoiceAssistant = ({ currentUser, onRequestCreated }) => {
         formData.append('audio', audioBlob, 'recording.wav');
 
         try {
-            const res = await fetch('http://localhost:8082/api/maintenance/voice/interact', {
+            const res = await fetch(`${API_BASE_MAINTENANCE}/maintenance/voice/interact`, {
                 method: 'POST',
                 headers: {
                     'X-User-Id': userId.toString()
@@ -129,7 +130,7 @@ const VoiceAssistant = ({ currentUser, onRequestCreated }) => {
         setResponse(null);
 
         try {
-            const res = await fetch('http://localhost:8082/api/maintenance/voice/interact-text', {
+            const res = await fetch(`${API_BASE_MAINTENANCE}/maintenance/voice/interact-text`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -229,8 +230,8 @@ const VoiceAssistant = ({ currentUser, onRequestCreated }) => {
                             onClick={isRecording ? stopRecording : startRecording}
                             disabled={isProcessing}
                             className={`relative w-20 h-20 rounded-full flex items-center justify-center transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg ${isRecording
-                                    ? 'bg-red-500 hover:bg-red-600 animate-pulse'
-                                    : 'bg-blue-500 hover:bg-blue-600'
+                                ? 'bg-red-500 hover:bg-red-600 animate-pulse'
+                                : 'bg-blue-500 hover:bg-blue-600'
                                 }`}
                         >
                             {isRecording ? (
@@ -331,9 +332,9 @@ const VoiceAssistant = ({ currentUser, onRequestCreated }) => {
                                     <div className="flex flex-col">
                                         <span className="text-gray-600 text-xs">Priority</span>
                                         <span className={`font-semibold ${response.createdTicket.priority === 'CRITICAL' ? 'text-red-600' :
-                                                response.createdTicket.priority === 'HIGH' ? 'text-orange-600' :
-                                                    response.createdTicket.priority === 'MEDIUM' ? 'text-yellow-600' :
-                                                        'text-green-600'
+                                            response.createdTicket.priority === 'HIGH' ? 'text-orange-600' :
+                                                response.createdTicket.priority === 'MEDIUM' ? 'text-yellow-600' :
+                                                    'text-green-600'
                                             }`}>
                                             {response.createdTicket.priority}
                                         </span>

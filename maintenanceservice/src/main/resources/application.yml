@@ -9,7 +9,16 @@ spring:
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
-  jpa:
+  cloud:
+    gcp:
+      storage:
+        bucket: ${GCP_STORAGE_BUCKET:homegenie-maintenance-uploads}
+
+gcp:
+  storage:
+    bucket-name: ${GCP_STORAGE_BUCKET:homegenie-maintenance-uploads}
+storage:
+  type: ${STORAGE_TYPE:gcs}
     hibernate:
       ddl-auto: update
     show-sql: false

@@ -101,6 +101,7 @@ services:
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
       REDIS_HOST: redis
       HUGGINGFACE_API_TOKEN: ${HUGGINGFACE_API_TOKEN:-}
+      STORAGE_TYPE: s3
       GCS_BUCKET_NAME: ${GCS_BUCKET_NAME:-homegenie-uploads}
       GCS_PROJECT_ID: ${GCS_PROJECT_ID:-homegenie}
     depends_on:

@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
@@ -21,7 +22,8 @@ import java.util.UUID;
 
 @Service
 @Slf4j
-public class S3Service {
+@ConditionalOnProperty(name = "storage.type", havingValue = "s3")
+public class S3StorageService implements StorageService {
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
@@ -110,8 +112,7 @@ public class S3Service {
                 bucketName,
                 fileName,
                 inputStream,
-                metadata
-        );
+                metadata);
 
         getS3Client().putObject(putRequest);
 

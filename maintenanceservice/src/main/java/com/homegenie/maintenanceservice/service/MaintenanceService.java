@@ -30,7 +30,7 @@ public class MaintenanceService {
 
     private final MaintenanceRepository repository;
     private final AIClassificationService aiService;
-    private final S3Service s3Service;
+    private final StorageService storageService;
     private final NotificationPublisher notificationPublisher;
     private final RestTemplate restTemplate;
 
@@ -57,7 +57,7 @@ public class MaintenanceService {
 
         if (dto.getImageBase64() != null && !dto.getImageBase64().isEmpty()) {
             try {
-                String imageUrl = String.valueOf(s3Service.uploadImage(dto.getImageBase64()));
+                String imageUrl = storageService.uploadImage(dto.getImageBase64());
                 request.setImageUrl(imageUrl);
             } catch (Exception e) {
                 log.error("Failed to upload image, continuing without it", e);
@@ -193,7 +193,7 @@ public class MaintenanceService {
 
         if (request.getImageUrl() != null) {
             try {
-                s3Service.deleteImage(request.getImageUrl());
+                storageService.deleteImage(request.getImageUrl());
             } catch (Exception e) {
                 log.error("Failed to delete image", e);
             }
