@@ -17,7 +17,7 @@ echo "🚀 Starting HomeGenie GCP Deployment Script..."
 
 # --- Configuration ---
 PROJECT_ID=$(gcloud config get-value project)
-REGION="us-central1"
+REGION="asia-south1"
 REPO_NAME="homegenie-repo"
 DB_INSTANCE="homegenie-db"
 DB_USER="homegenie_app"
