@@ -4,6 +4,7 @@ import com.homegenie.maintenanceservice.dto.AIProcessingRequest;
 import com.homegenie.maintenanceservice.dto.AIProcessingResponse;
 import com.homegenie.maintenanceservice.dto.IntentResult;
 import com.homegenie.maintenanceservice.dto.VoiceIntent;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,9 +28,7 @@ public class IntentRecognitionService {
     @Value("${voice.assistant.timeout:30000}")
     private int timeout;
 
-    /**
-     * Recognize user intent from transcribed text using AI
-     */
+    @CircuitBreaker(name = "voiceService", fallbackMethod = "recognizeIntentFallback")
     public Mono<IntentResult> recognizeIntent(String text, Long userId, String context) {
         log.info("Recognizing intent for user {}: {}", userId, text);
 
@@ -47,8 +46,12 @@ public class IntentRecognitionService {
                 .timeout(Duration.ofMillis(timeout))
                 .map(AIProcessingResponse::getIntent)
                 .doOnSuccess(intent -> log.info("Intent recognized: {}", intent.getIntent()))
-                .doOnError(error -> log.error("Intent recognition failed", error))
-                .onErrorReturn(createUnknownIntent());
+                .doOnError(error -> log.error("Intent recognition failed", error));
+    }
+
+    public Mono<IntentResult> recognizeIntentFallback(String text, Long userId, String context, Throwable t) {
+        log.warn("Circuit breaker triggered for intent recognition. Voice service is unavailable: {}", t.getMessage());
+        return Mono.just(createUnknownIntent());
     }
 
     private IntentResult createUnknownIntent() {

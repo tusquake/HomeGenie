@@ -107,18 +107,32 @@ deploy_service() {
     # Cloud Build (Remote Build)
     gcloud builds submit $DIR_NAME --tag $IMAGE_URI --quiet
 
-    # Base Deploy Command
-    CMD="gcloud run deploy $SERVICE_NAME --image=$IMAGE_URI --region=$REGION --allow-unauthenticated --quiet"
+    # Build all env vars into one string
+    ALL_ENV_VARS=""
     
-    # Add DB Connection if needed
+    # Add DB Connection env vars if needed
     if [ "$USE_DB" = "true" ]; then
-        CMD="$CMD --add-cloudsql-instances=${PROJECT_ID}:${REGION}:${DB_INSTANCE}"
-        CMD="$CMD --set-env-vars=DB_HOST=/cloudsql/${PROJECT_ID}:${REGION}:${DB_INSTANCE},DB_USERNAME=${DB_USER},DB_PASSWORD=${APP_DB_PASSWORD}"
+        ALL_ENV_VARS="DB_USERNAME=${DB_USER},DB_PASSWORD=${APP_DB_PASSWORD}"
     fi
 
-    # Add Extra Env Vars
+    # Merge extra env vars
     if [ -n "$ENV_VARS" ]; then
-        CMD="$CMD --set-env-vars=$ENV_VARS"
+        if [ -n "$ALL_ENV_VARS" ]; then
+            ALL_ENV_VARS="${ALL_ENV_VARS},${ENV_VARS}"
+        else
+            ALL_ENV_VARS="$ENV_VARS"
+        fi
+    fi
+
+    # Build Deploy Command
+    CMD="gcloud run deploy $SERVICE_NAME --image=$IMAGE_URI --region=$REGION --allow-unauthenticated --quiet"
+    
+    if [ "$USE_DB" = "true" ]; then
+        CMD="$CMD --add-cloudsql-instances=${PROJECT_ID}:${REGION}:${DB_INSTANCE}"
+    fi
+
+    if [ -n "$ALL_ENV_VARS" ]; then
+        CMD="$CMD --set-env-vars=$ALL_ENV_VARS"
     fi
 
     # Execute Deploy
@@ -128,10 +142,10 @@ deploy_service() {
 # --- 5. Deploy Microservices ---
 
 # User Service
-deploy_service "user-service" "userservice" "true" "SPRING_PROFILES_ACTIVE=prod,DB_URL=jdbc:postgresql:///homegenie_users?host=/cloudsql/${PROJECT_ID}:${REGION}:${DB_INSTANCE}"
+deploy_service "user-service" "userservice" "true" "SPRING_PROFILES_ACTIVE=prod,CLOUD_SQL_ENABLED=true,CLOUD_SQL_INSTANCE=${PROJECT_ID}:${REGION}:${DB_INSTANCE},CLOUD_SQL_DB=homegenie_users"
 
-# Maintenance Service (needs rabbitmq, for now just DB)
-deploy_service "maintenance-service" "maintenanceservice" "true" "SPRING_PROFILES_ACTIVE=prod,GCP_STORAGE_BUCKET=${BUCKET_NAME},DB_URL=jdbc:postgresql:///homegenie_maintenance?host=/cloudsql/${PROJECT_ID}:${REGION}:${DB_INSTANCE}"
+# Maintenance Service
+deploy_service "maintenance-service" "maintenanceservice" "true" "SPRING_PROFILES_ACTIVE=prod,GCP_STORAGE_BUCKET=${BUCKET_NAME},CLOUD_SQL_ENABLED=true,CLOUD_SQL_INSTANCE=${PROJECT_ID}:${REGION}:${DB_INSTANCE},CLOUD_SQL_DB=homegenie_maintenance"
 
 # Notification Service
 deploy_service "notification-service" "notification-service" "false" "SPRING_PROFILES_ACTIVE=prod"

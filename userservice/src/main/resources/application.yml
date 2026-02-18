@@ -4,6 +4,12 @@ server:
 spring:
   application:
     name: user-service
+  cloud:
+    gcp:
+      sql:
+        enabled: ${CLOUD_SQL_ENABLED:false}
+        instance-connection-name: ${CLOUD_SQL_INSTANCE:}
+        database-name: ${CLOUD_SQL_DB:homegenie_users}
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/homegenie_users}
     username: ${DB_USERNAME:postgres}

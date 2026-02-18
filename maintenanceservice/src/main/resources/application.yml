@@ -4,21 +4,20 @@ server:
 spring:
   application:
     name: maintenance-service
+  cloud:
+    gcp:
+      sql:
+        enabled: ${CLOUD_SQL_ENABLED:false}
+        instance-connection-name: ${CLOUD_SQL_INSTANCE:}
+        database-name: ${CLOUD_SQL_DB:homegenie_maintenance}
+      storage:
+        bucket: ${GCP_STORAGE_BUCKET:homegenie-maintenance-uploads}
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/homegenie_maintenance}
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
-  cloud:
-    gcp:
-      storage:
-        bucket: ${GCP_STORAGE_BUCKET:homegenie-maintenance-uploads}
-
-gcp:
-  storage:
-    bucket-name: ${GCP_STORAGE_BUCKET:homegenie-maintenance-uploads}
-storage:
-  type: ${STORAGE_TYPE:gcs}
+  jpa:
     hibernate:
       ddl-auto: update
     show-sql: false
@@ -39,6 +38,12 @@ storage:
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
 
+gcp:
+  storage:
+    bucket-name: ${GCP_STORAGE_BUCKET:homegenie-maintenance-uploads}
+storage:
+  type: ${STORAGE_TYPE:gcs}
+
 user:
   service:
     url: ${USER_SERVICE_URL:http://localhost:8081}
@@ -48,6 +53,19 @@ voice:
     url: ${VOICE_SERVICE_URL:http://localhost:5000}
   assistant:
     timeout: 30000
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      voiceService:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slowCallDurationThreshold: 5s
+        slowCallRateThreshold: 80
+        minimumNumberOfCalls: 5
 
 gcs:
   bucket-name: ${GCS_BUCKET_NAME:homegenie-uploads}
@@ -89,10 +107,13 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics
+        include: health,info,metrics,circuitbreakers
   endpoint:
     health:
       show-details: when-authorized
+  health:
+    circuitbreakers:
+      enabled: true
 
 logging:
   level:

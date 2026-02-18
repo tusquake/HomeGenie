@@ -1,6 +1,7 @@
 package com.homegenie.maintenanceservice.service;
 
 import com.homegenie.maintenanceservice.dto.*;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +17,6 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +31,7 @@ public class VoiceProcessingService {
     @Value("${voice.assistant.timeout:30000}")
     private int timeout;
 
-    /**
-     * Convert speech audio file to text using Python service
-     */
+    @CircuitBreaker(name = "voiceService", fallbackMethod = "speechToTextFallback")
     public Mono<SpeechToTextResponse> speechToText(MultipartFile audioFile) {
         log.info("Converting speech to text for file: {}", audioFile.getOriginalFilename());
 
@@ -54,8 +52,7 @@ public class VoiceProcessingService {
                     .bodyToMono(SpeechToTextResponse.class)
                     .timeout(Duration.ofMillis(timeout))
                     .doOnSuccess(response -> log.info("STT successful: {}", response.getText()))
-                    .doOnError(error -> log.error("STT failed", error))
-                    .onErrorReturn(createErrorSTTResponse());
+                    .doOnError(error -> log.error("STT failed", error));
 
         } catch (Exception e) {
             log.error("Error preparing STT request", e);
@@ -63,9 +60,7 @@ public class VoiceProcessingService {
         }
     }
 
-    /**
-     * Convert text to speech audio using Python service
-     */
+    @CircuitBreaker(name = "voiceService", fallbackMethod = "textToSpeechFallback")
     public Mono<TextToSpeechResponse> textToSpeech(String text) {
         log.info("Converting text to speech: {}", text.substring(0, Math.min(50, text.length())));
 
@@ -80,8 +75,17 @@ public class VoiceProcessingService {
                 .bodyToMono(TextToSpeechResponse.class)
                 .timeout(Duration.ofMillis(timeout))
                 .doOnSuccess(response -> log.info("TTS successful"))
-                .doOnError(error -> log.error("TTS failed", error))
-                .onErrorReturn(createErrorTTSResponse());
+                .doOnError(error -> log.error("TTS failed", error));
+    }
+
+    public Mono<SpeechToTextResponse> speechToTextFallback(MultipartFile audioFile, Throwable t) {
+        log.warn("Circuit breaker triggered for STT. Voice service is unavailable: {}", t.getMessage());
+        return Mono.just(createErrorSTTResponse());
+    }
+
+    public Mono<TextToSpeechResponse> textToSpeechFallback(String text, Throwable t) {
+        log.warn("Circuit breaker triggered for TTS. Voice service is unavailable: {}", t.getMessage());
+        return Mono.just(createErrorTTSResponse());
     }
 
     private SpeechToTextResponse createErrorSTTResponse() {
