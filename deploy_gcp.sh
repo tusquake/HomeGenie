@@ -128,10 +128,10 @@ deploy_service() {
 # --- 5. Deploy Microservices ---
 
 # User Service
-deploy_service "user-service" "userservice" "true" "SPRING_PROFILES_ACTIVE=prod"
+deploy_service "user-service" "userservice" "true" "SPRING_PROFILES_ACTIVE=prod,DB_URL=jdbc:postgresql:///homegenie_users?host=/cloudsql/${PROJECT_ID}:${REGION}:${DB_INSTANCE}"
 
 # Maintenance Service (needs rabbitmq, for now just DB)
-deploy_service "maintenance-service" "maintenanceservice" "true" "SPRING_PROFILES_ACTIVE=prod,GCP_STORAGE_BUCKET=${BUCKET_NAME}"
+deploy_service "maintenance-service" "maintenanceservice" "true" "SPRING_PROFILES_ACTIVE=prod,GCP_STORAGE_BUCKET=${BUCKET_NAME},DB_URL=jdbc:postgresql:///homegenie_maintenance?host=/cloudsql/${PROJECT_ID}:${REGION}:${DB_INSTANCE}"
 
 # Notification Service
 deploy_service "notification-service" "notification-service" "false" "SPRING_PROFILES_ACTIVE=prod"
