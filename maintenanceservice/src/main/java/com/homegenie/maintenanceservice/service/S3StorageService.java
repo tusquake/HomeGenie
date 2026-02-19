@@ -74,7 +74,8 @@ public class S3StorageService implements StorageService {
     /**
      * Upload image with automatic fallback to local storage if S3 fails
      */
-    public ImageUploadResult uploadImage(String base64Image) {
+    @Override
+    public String uploadImage(String base64Image) {
         String fileName = "maintenance/" + UUID.randomUUID().toString() + ".jpg";
         byte[] imageBytes = decodeBase64Image(base64Image);
 
@@ -82,7 +83,7 @@ public class S3StorageService implements StorageService {
         try {
             String s3Url = uploadToS3(imageBytes, fileName);
             log.info("Image uploaded to S3 successfully: {}", s3Url);
-            return new ImageUploadResult(s3Url, "s3", fileName, false);
+            return s3Url;
         } catch (Exception e) {
             log.error("S3 upload failed, falling back to local storage: {}", e.getMessage());
 
@@ -90,7 +91,7 @@ public class S3StorageService implements StorageService {
             try {
                 String localUrl = saveToLocal(imageBytes, fileName);
                 log.info("Image saved to local storage: {}", localUrl);
-                return new ImageUploadResult(localUrl, "local", fileName, true);
+                return localUrl;
             } catch (Exception localException) {
                 log.error("Local storage also failed", localException);
                 throw new RuntimeException("Both S3 and local storage failed: " + localException.getMessage());
