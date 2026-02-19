@@ -1,12 +1,14 @@
 # HomeGenie - Smart Maintenance Management System
 
 ![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
+![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?logo=github-actions&logoColor=white)
 
 ![Java](https://img.shields.io/badge/Java-17-orange?logo=java)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.6-green?logo=spring)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-green?logo=spring)
 ![React](https://img.shields.io/badge/React-18-blue?logo=react)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?logo=postgresql)
-![AWS](https://img.shields.io/badge/AWS-Free%20Tier-orange?logo=amazon-aws)
+![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED?logo=docker&logoColor=white)
+![GCP](https://img.shields.io/badge/GCP-Cloud%20Run-4285F4?logo=google-cloud&logoColor=white)
 
 HomeGenie is an AI-powered maintenance management platform designed for residential societies. It enables residents to raise maintenance requests with photos, allows administrators to track and assign tasks, and sends automated email notifications for efficient issue resolution.
 
@@ -139,7 +141,7 @@ If such requests are found, the system sends reminder emails to the admin.
 ## Architecture
 
 ```
-React Frontend (Port 3000)
+React Frontend (Vite)
   - User registration and login
   - Request creation and tracking
   - Admin dashboard
@@ -157,23 +159,27 @@ API Gateway (Port 8080) ──────────────────�
   ├─► Maintenance Service (Port 8082)                        │
   │     - Request management (CRUD)                          │
   │     - AI classification and priority assignment          │
-  │     - Email notifications and scheduling                 │
+  │     - Image upload (GCS / S3 with local fallback)        │
   │     - Statistics and analytics                           │
   │                                                          │
-  └─► Python Voice Service (Port 8000)                       │
+  ├─► Notification Service (Port 8083)                       │
+  │     - Event-driven email notifications (RabbitMQ)        │
+  │     - New request, assignment, and status update alerts   │
+  │                                                          │
+  └─► Python Voice Service (Port 5000)                       │
         - Speech-to-Text (Google Speech Recognition)         │
         - Text-to-Speech (gTTS)                              │
         - AI Intent Recognition (Gemini 2.0 Flash)           │
 ─────────────────────────────────────────────────────────────┘
 
-PostgreSQL Databases
-  - homegenie_users
-  - homegenie_maintenance
+Google Cloud Platform
+  - Cloud Run (serverless container hosting)
+  - Cloud SQL (managed PostgreSQL)
+  - Cloud Storage (image uploads)
+  - Artifact Registry (Docker images)
 
-AWS Integration
-  - S3 for image storage
-  - SES for email notifications
-  - EC2 for deployment
+CI/CD
+  - GitHub Actions (automated test → build → deploy pipeline)
 ```
 
 ---
@@ -216,19 +222,28 @@ The API Gateway is implemented using **Spring Cloud Gateway** (free, open-source
 - Spring Boot 3.2.0 (Java 17)
 - Spring Cloud Gateway (API Gateway)
 - Hibernate / JPA
-- PostgreSQL
+- PostgreSQL 15
 - JWT Authentication
+- RabbitMQ (event-driven notifications)
+- Redis (caching)
 
 **Frontend**
-- React 18
+- React 18 + Vite
 - Tailwind CSS
 - Lucide React for icons
 
 **Cloud & AI**
-- Hugging Face API for classification
-- AWS S3 for image storage
-- AWS SES for email delivery
-- AWS EC2 for hosting
+- Google Gemini 2.0 Flash (voice intent recognition)
+- Hugging Face API (issue classification)
+- Google Cloud Storage (image uploads)
+- Google Cloud SQL (managed PostgreSQL)
+- Google Cloud Run (serverless deployment)
+
+**DevOps**
+- Docker (containerized microservices)
+- Docker Compose (local development)
+- GitHub Actions (CI/CD pipeline)
+- GCP Artifact Registry (Docker image storage)
 
 ---
 
@@ -237,10 +252,10 @@ The API Gateway is implemented using **Spring Cloud Gateway** (free, open-source
 ### Prerequisites
 - Java 17+
 - Node.js 18+
-- PostgreSQL 14+
-- AWS account (Free Tier)
+- Docker & Docker Compose
+- GCP account (for cloud deployment)
 
-### Installation
+### Local Development (Docker Compose)
 
 1. Clone the repository:
    ```bash
@@ -248,49 +263,97 @@ The API Gateway is implemented using **Spring Cloud Gateway** (free, open-source
    cd homegenie
    ```
 
-2. Create PostgreSQL databases:
+2. Create a `.env` file (see `.env.example`) and start all services:
    ```bash
-   sudo -u postgres psql
-   CREATE DATABASE homegenie_users;
-   CREATE DATABASE homegenie_maintenance;
-   \q
+   docker-compose up --build
    ```
 
-3. Configure AWS S3 and SES.
-
-4. Start backend services:
-   ```bash
-   # API Gateway (Port 8080)
-   cd api-gateway
-   mvn spring-boot:run
-
-   # User Service (Port 8081)
-   cd userservice
-   mvn spring-boot:run
-
-   # Maintenance Service (Port 8082)
-   cd maintenanceservice
-   mvn spring-boot:run
-
-   # Python Voice Service (Port 8000)
-   cd maintenanceservice/python-voice-service
-   pip install -r requirements.txt
-   python main.py
-   ```
-
-5. Start frontend:
+3. Start the frontend:
    ```bash
    cd homegenie-app
    npm install
-   npm start
+   npm run dev
    ```
 
-   # Future Enhancements
+### GCP Cloud Deployment
 
-- Dedicated **Technician Dashboard** for task acceptance, status updates, and ETA tracking  
-- **Event-driven notification system** to decouple alerts from core business logic  
-- **Multi-channel notifications** (Email, SMS, Push) for critical and emergency requests  
-- **Resilience mechanisms** (circuit breakers, retries, fallbacks) for external services  
-- **Audit logs & request history** for traceability and accountability  
-- **Advanced analytics & predictive insights** using historical maintenance data  
+1. Run the one-time setup script in **Google Cloud Shell**:
+   ```bash
+   bash setup_gcp.sh
+   ```
+   This creates: Artifact Registry, Cloud SQL, GCS bucket, and a service account.
 
+2. Add the required **GitHub Secrets** (GCP_PROJECT_ID, GCP_SA_KEY, DB credentials, etc.).
+
+3. Push to `main` — the CI/CD pipeline will automatically:
+   - Run unit tests for all services
+   - Build & push Docker images to Artifact Registry
+   - Deploy all services to Cloud Run
+   - Configure the API Gateway with service URLs
+
+---
+
+## CI/CD Pipeline
+
+The project uses **GitHub Actions** for continuous integration and deployment. On every push to `main`:
+
+```
+Test (parallel)          Build & Push           Deploy Backend         Deploy Gateway
+┌──────────────────┐    ┌────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│ test-user-service│    │                │    │ user-service     │    │                 │
+│ test-maintenance │───►│ Docker images  │───►│ maintenance-svc  │───►│ api-gateway     │
+│ test-notif-svc   │    │ → Artifact Reg │    │ notification-svc │    │ (with svc URLs) │
+│ build-gateway    │    │                │    │ voice-service    │    │                 │
+└──────────────────┘    └────────────────┘    └──────────────────┘    └─────────────────┘
+```
+
+---
+
+## Roadmap & Future Enhancements
+
+### Smart Technician Management
+- **AI-powered technician recommendation** — auto-suggest the best technician based on skill set, availability, workload, and past performance ratings
+- **Dedicated Technician Dashboard** — task acceptance/rejection, real-time status updates, ETA tracking, and work log submission
+- **Technician skill profiling** — maintain a skills matrix (plumbing, electrical, HVAC, etc.) for intelligent auto-assignment
+- **Workload balancing** — prevent overloading a single technician by distributing tasks evenly
+
+### Admin Approval Workflow
+- **Multi-step approval process** — admin reviews and approves before a request is marked as completed
+- **Completion verification** — require photo evidence and resident sign-off before closing tickets
+- **Escalation rules** — auto-escalate unresolved requests based on SLA timers (e.g., 24h for HIGH, 4h for CRITICAL)
+- **Bulk operations** — approve, assign, or close multiple requests in a single action
+
+### Real-Time Location Tracking
+- **Live technician tracking** — track assigned technician's location on a map during active assignments
+- **Geofencing alerts** — notify residents when the technician is nearby or has arrived at the location
+- **Route optimization** — suggest optimal routes for technicians with multiple assignments
+- **Estimated arrival time** — dynamic ETA calculation based on real-time location data
+
+### Advanced Analytics & Predictive Insights
+- **Interactive analytics dashboard** — charts for request trends, category distribution, resolution time, and technician performance
+- **Predictive maintenance** — use historical data and ML models to predict recurring issues (e.g., seasonal plumbing problems)
+- **SLA compliance tracking** — monitor response and resolution times against defined SLAs
+- **Cost analysis** — track maintenance costs per category, building, and time period
+- **Resident satisfaction scores** — collect and analyze feedback after request completion
+
+### Complete Audit Log System
+- **Full request lifecycle audit trail** — every action (creation, assignment, status change, comment, approval) logged with timestamp, actor, and IP
+- **Admin activity logs** — track all administrative actions for accountability
+- **Data export** — export audit logs as CSV/PDF for compliance and reporting
+- **Change history** — view complete diff history for any modified request field
+
+### Multi-Channel Notifications
+- **Push notifications** — browser and mobile push alerts for real-time updates
+- **SMS alerts** — critical/emergency notifications via SMS (Twilio integration)
+- **In-app notification center** — centralized notification inbox with read/unread status
+- **Notification preferences** — allow users to configure channels per notification type
+- **Role-based access control (RBAC) v2** — granular permissions (building manager, floor supervisor, etc.)
+
+
+
+### Platform Enhancements
+- **Multi-tenant architecture** — support multiple residential societies on a single deployment
+- **Mobile app** — native Android/iOS app using React Native
+- **Offline mode** — queue requests offline and sync when connectivity is restored
+- **Internationalization (i18n)** — multi-language support for diverse communities
+- **Custom branding** — allow each society to customize logo, colors, and email templates
