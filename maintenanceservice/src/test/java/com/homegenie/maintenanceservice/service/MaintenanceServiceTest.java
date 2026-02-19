@@ -41,7 +41,7 @@ class MaintenanceServiceTest {
     private AIClassificationService aiService;
 
     @Mock
-    private S3Service s3Service;
+    private StorageService s3Service;
 
     @Mock
     private NotificationPublisher notificationPublisher;
