@@ -27,8 +27,7 @@ class AIClassificationServiceTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(aiService, "aiEnabled", true);
-        ReflectionTestUtils.setField(aiService, "huggingFaceToken", "");
+        ReflectionTestUtils.setField(aiService, "apiToken", "");
     }
 
     @Nested
