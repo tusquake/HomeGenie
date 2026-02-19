@@ -63,9 +63,9 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Run Tests
-        run: ./mvnw test -B
+        run: mvn test -B
       - name: Build
-        run: ./mvnw package -DskipTests -B
+        run: mvn package -DskipTests -B
 
   build-gateway:
     runs-on: ubuntu-latest
@@ -81,7 +81,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Build
-        run: ./mvnw package -DskipTests -B
+        run: mvn package -DskipTests -B
 
   build-and-push:
     needs: [test-user-service, test-maintenance-service, test-notification-service, build-gateway]
