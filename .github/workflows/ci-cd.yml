@@ -27,7 +27,9 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Run Tests
-        run: ./mvnw test -B
+        run: |
+          chmod +x ./mvnw
+          ./mvnw test -B
       - name: Build
         run: ./mvnw package -DskipTests -B
 
@@ -45,7 +47,9 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Run Tests
-        run: ./mvnw test -B
+        run: |
+          chmod +x ./mvnw
+          ./mvnw test -B
       - name: Build
         run: ./mvnw package -DskipTests -B
 
