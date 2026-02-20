@@ -62,7 +62,8 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                     .parseSignedClaims(token)
                     .getPayload();
 
-            String userId = claims.get("userId", String.class);
+            Object userIdClaim = claims.get("userId");
+            String userId = userIdClaim != null ? String.valueOf(userIdClaim) : "";
             String role = claims.get("role", String.class);
             String email = claims.getSubject();
 

@@ -37,6 +37,11 @@ public class MaintenanceController {
         return ResponseEntity.ok(maintenanceService.getRequestsByUser(userId));
     }
 
+    @GetMapping("/technician/{technicianId}")
+    public ResponseEntity<List<MaintenanceResponseDTO>> getTechnicianRequests(@PathVariable Long technicianId) {
+        return ResponseEntity.ok(maintenanceService.getRequestsByTechnician(technicianId));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<MaintenanceResponseDTO> getRequest(@PathVariable Long id) {
         return ResponseEntity.ok(maintenanceService.getRequestById(id));

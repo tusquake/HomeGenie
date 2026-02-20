@@ -4,6 +4,9 @@ server:
 spring:
   application:
     name: maintenance-service
+  autoconfigure:
+    exclude:
+      - com.google.cloud.spring.autoconfigure.storage.GcpStorageAutoConfiguration
   cloud:
     gcp:
       sql:
@@ -42,11 +45,14 @@ gcp:
   storage:
     bucket-name: ${GCP_STORAGE_BUCKET:homegenie-maintenance-uploads}
 storage:
-  type: ${STORAGE_TYPE:gcs}
+  type: ${STORAGE_TYPE:s3}
 
 user:
   service:
     url: ${USER_SERVICE_URL:http://localhost:8081}
+
+admin:
+  email: ${ADMIN_EMAIL:admin@homegenie.com}
 
 voice:
   service:

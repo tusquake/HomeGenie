@@ -37,6 +37,9 @@ public class MaintenanceService {
     @Value("${user.service.url:http://localhost:8081}")
     private String userServiceUrl;
 
+    @Value("${admin.email:admin@homegenie.com}")
+    private String adminEmail;
+
     @Transactional
     @CacheEvict(value = "statistics", allEntries = true)
     public MaintenanceResponseDTO createRequest(Long userId, MaintenanceRequestDTO dto) {
@@ -68,7 +71,7 @@ public class MaintenanceService {
 
         try {
             notificationPublisher.publishNewRequest(
-                    "admin@homegenie.com",
+                    adminEmail,
                     user.getFullName(),
                     saved.getTitle(),
                     saved.getCategory().toString(),
@@ -88,6 +91,12 @@ public class MaintenanceService {
 
     public List<MaintenanceResponseDTO> getRequestsByUser(Long userId) {
         return repository.findByUserId(userId).stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<MaintenanceResponseDTO> getRequestsByTechnician(Long technicianId) {
+        return repository.findByAssignedTo(technicianId).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
