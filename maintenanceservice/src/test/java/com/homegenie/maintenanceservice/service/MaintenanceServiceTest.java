@@ -59,6 +59,7 @@ class MaintenanceServiceTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(maintenanceService, "userServiceUrl", "http://localhost:8081");
+        ReflectionTestUtils.setField(maintenanceService, "adminEmail", "admin@homegenie.com");
 
         testRequest = new MaintenanceRequest();
         testRequest.setId(1L);
