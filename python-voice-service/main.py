@@ -466,6 +466,29 @@ def simple_intent_detection(query: str) -> dict:
                          "no water", "broken", "dangerous", "help", "immediately"]
     is_emergency = any(keyword in query_lower for keyword in emergency_keywords)
     
+    if is_emergency:
+        category = "OTHER"
+        if any(word in query_lower for word in ["sink", "pipe", "toilet", "faucet", "drain", "water", "leak", "flood"]):
+            category = "PLUMBING"
+        elif any(word in query_lower for word in ["light", "outlet", "electric", "power", "switch"]):
+            category = "ELECTRICAL"
+        elif any(word in query_lower for word in ["ac", "heat", "hvac", "air", "temperature"]):
+            category = "HVAC"
+        elif any(word in query_lower for word in ["fridge", "stove", "oven", "dishwasher", "washer"]):
+            category = "APPLIANCE"
+            
+        return {
+            "intent": "EMERGENCY",
+            "confidence": 0.9,
+            "extractedData": {
+                "title": query[:50],
+                "description": query,
+                "category": category
+            },
+            "response": "I'm marking this as an emergency and creating a critical priority ticket.",
+            "isEmergency": True
+        }
+    
     status_keywords = ["status", "update", "progress", "when", "check", "where is"]
     if any(keyword in query_lower for keyword in status_keywords):
         return {

@@ -98,7 +98,8 @@ const VoiceAssistant = ({ currentUser, onRequestCreated }) => {
             const res = await fetch(`${API_BASE_MAINTENANCE}/maintenance/voice/interact`, {
                 method: 'POST',
                 headers: {
-                    'X-User-Id': userId.toString()
+                    'X-User-Id': userId.toString(),
+                    'Authorization': `Bearer ${currentUser?.token}`
                 },
                 body: formData
             });
@@ -134,7 +135,8 @@ const VoiceAssistant = ({ currentUser, onRequestCreated }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-User-Id': userId.toString()
+                    'X-User-Id': userId.toString(),
+                    'Authorization': `Bearer ${currentUser?.token}`
                 },
                 body: JSON.stringify({
                     transcribedText: textInput,
