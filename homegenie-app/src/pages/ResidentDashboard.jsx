@@ -60,45 +60,58 @@ const ResidentDashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
             <Header user={user} onLogout={logout} role="RESIDENT" />
 
-            <div className="max-w-7xl mx-auto px-4 py-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <VoiceAssistant currentUser={user} onRequestCreated={loadRequests} />
 
-                <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-3">
-                        <ClipboardList className="w-6 h-6 text-gray-600" />
-                        <h2 className="text-2xl font-bold text-gray-800">My Requests</h2>
+                {/* Page Header */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4 animate-fade-in">
+                    <div>
+                        <h2 className="section-title flex items-center gap-3 mb-2">
+                            <ClipboardList className="w-8 h-8" />
+                            My Requests
+                        </h2>
+                        <p className="section-subtitle">Manage all your maintenance requests in one place</p>
                     </div>
                     <button
                         onClick={() => setShowCreateForm(true)}
-                        className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2"
+                        className="btn-primary flex items-center gap-2 whitespace-nowrap"
                     >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-5 h-5" />
                         New Request
                     </button>
                 </div>
 
+                {/* Content */}
                 {loading ? (
                     <div className="flex items-center justify-center py-20">
-                        <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+                        <div className="animate-spin">
+                            <div className="w-12 h-12 border-4 border-blue-200 rounded-full border-t-blue-600"></div>
+                        </div>
                     </div>
                 ) : requests.length === 0 ? (
-                    <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-                        <AlertCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-600 text-lg">No maintenance requests yet</p>
+                    <div className="card text-center py-16 animate-fade-in">
+                        <div className="mb-4">
+                            <AlertCircle className="w-20 h-20 text-gray-300 mx-auto" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-700 mb-2">No requests yet</h3>
+                        <p className="text-gray-600 mb-6">Create your first maintenance request to get started</p>
                         <button
                             onClick={() => setShowCreateForm(true)}
-                            className="mt-4 bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
+                            className="btn-primary inline-flex items-center gap-2"
                         >
+                            <Plus className="w-5 h-5" />
                             Create Your First Request
                         </button>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {requests.map(req => (
-                            <RequestCard key={req.id} request={req} role="RESIDENT" />
+                        {requests.map((req, index) => (
+                            <div key={req.id} style={{ animationDelay: `${index * 50}ms` }} className="animate-fade-in">
+                                <RequestCard request={req} role="RESIDENT" />
+                            </div>
                         ))}
                     </div>
                 )}

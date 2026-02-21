@@ -1,4 +1,4 @@
-const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:8080';
+const API_GATEWAY_URL = import.meta.env.VITE_API_GATEWAY_URL || '';
 
 export const API_BASE_USER = `${API_GATEWAY_URL}/api`;
 export const API_BASE_MAINTENANCE = `${API_GATEWAY_URL}/api`;

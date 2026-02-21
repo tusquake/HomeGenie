@@ -1,4 +1,4 @@
-import { Loader2, Users } from 'lucide-react';
+import { Loader2, Users, Calendar, Tag } from 'lucide-react';
 import React, { useState } from 'react';
 import { getCategoryIcon, getPriorityColor, getStatusIcon } from '../utils/utils.jsx';
 
@@ -17,56 +17,79 @@ const RequestCard = ({ request, role, onAssign, onUpdateStatus, technicians = []
 
     const assignedTechnician = technicians.find(tech => tech.userId === request.assignedTo);
 
+    const getPriorityBadgeColor = () => {
+        switch (request.priority) {
+            case 'HIGH': return 'badge-danger';
+            case 'MEDIUM': return 'badge-warning';
+            case 'LOW': return 'badge-success';
+            default: return 'badge-primary';
+        }
+    };
+
     return (
-        <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition p-6">
+        <div className="card group animate-fade-in">
             <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors">
                     {getStatusIcon(request.status)}
-                    <span className="text-sm font-medium text-gray-700">
+                    <span className="text-sm font-semibold text-blue-700">
                         {request.status.replace('_', ' ')}
                     </span>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityColor(request.priority)}`}>
+                <span className={`${getPriorityBadgeColor()}`}>
                     {request.priority}
                 </span>
             </div>
 
-            <div className="flex items-center gap-2 mb-2">
-                <span className="text-2xl">{getCategoryIcon(request.category)}</span>
-                <h3 className="text-lg font-bold text-gray-800">{request.title}</h3>
+            <div className="flex items-start gap-3 mb-3">
+                <span className="text-4xl">{getCategoryIcon(request.category)}</span>
+                <div className="flex-1">
+                    <h3 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">{request.title}</h3>
+                    <p className="text-xs text-gray-500 font-medium uppercase tracking-widest">{request.category}</p>
+                </div>
             </div>
-            <p className="text-sm text-gray-600 mb-4 line-clamp-2">{request.description}</p>
+
+            <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">{request.description}</p>
 
             {request.imageUrl && (
-                <img
-                    src={request.imageUrl}
-                    alt="Issue"
-                    className="w-full h-32 object-cover rounded-lg mb-4"
-                    onError={(e) => e.target.style.display = 'none'}
-                />
+                <div className="mb-4 overflow-hidden rounded-xl">
+                    <img
+                        src={request.imageUrl}
+                        alt="Issue"
+                        className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => e.target.style.display = 'none'}
+                    />
+                </div>
             )}
 
-            <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-                <span className="bg-gray-100 px-2 py-1 rounded">{request.category}</span>
-                <span>{new Date(request.createdAt).toLocaleDateString()}</span>
+            <div className="flex items-center justify-between text-xs text-gray-500 mb-4 pb-4 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    <span>{new Date(request.createdAt).toLocaleDateString()}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Tag className="w-4 h-4" />
+                    <span>#{String(request.id).slice(0, 8)}</span>
+                </div>
             </div>
 
             {request.assignedTo && (
-                <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                    <div className="flex items-start gap-2">
-                        <Users className="w-4 h-4 text-blue-600 mt-0.5" />
+                <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-100">
+                    <div className="flex items-start gap-3">
+                        <div className="p-2 bg-blue-200 rounded-lg">
+                            <Users className="w-5 h-5 text-blue-700" />
+                        </div>
                         <div className="flex-1">
-                            <p className="text-xs font-medium text-blue-900">Assigned Technician</p>
+                            <p className="text-xs font-bold text-blue-900 uppercase tracking-wider">Assigned To</p>
                             {assignedTechnician ? (
                                 <>
-                                    <p className="text-sm font-semibold text-blue-800">{assignedTechnician.fullName}</p>
-                                    <p className="text-xs text-blue-600">{assignedTechnician.email}</p>
+                                    <p className="text-sm font-bold text-blue-800 mt-1">{assignedTechnician.fullName}</p>
+                                    <p className="text-xs text-blue-600 mt-1">{assignedTechnician.email}</p>
                                     {assignedTechnician.phoneNumber && (
                                         <p className="text-xs text-blue-600">📞 {assignedTechnician.phoneNumber}</p>
                                     )}
                                 </>
                             ) : (
-                                <p className="text-xs text-blue-700">Technician ID: #{request.assignedTo}</p>
+                                <p className="text-xs text-blue-700 mt-1">ID: #{request.assignedTo}</p>
                             )}
                         </div>
                     </div>
@@ -74,22 +97,21 @@ const RequestCard = ({ request, role, onAssign, onUpdateStatus, technicians = []
             )}
 
             {isUpdating && (
-                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg animate-pulse">
                     <div className="flex items-center gap-2">
                         <Loader2 className="w-4 h-4 text-green-600 animate-spin" />
-                        <p className="text-sm text-green-800">Updating status...</p>
+                        <p className="text-sm font-medium text-green-800">Updating status...</p>
                     </div>
                 </div>
             )}
 
             {role === 'ADMIN' && request.status !== 'COMPLETED' && (
-                <div className="flex gap-2">
+                <div className="flex gap-2 pt-4 border-t border-gray-100">
                     {request.status === 'PENDING' && !request.assignedTo && onAssign && (
                         <button
                             onClick={() => onAssign(request)}
                             disabled={isUpdating}
-                            className={`flex-1 bg-indigo-100 text-indigo-700 py-2 rounded-lg text-sm font-medium transition ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-indigo-200'
-                                }`}
+                            className="flex-1 btn-primary text-sm py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Assign Technician
                         </button>
@@ -98,15 +120,14 @@ const RequestCard = ({ request, role, onAssign, onUpdateStatus, technicians = []
                         <button
                             onClick={() => handleStatusUpdate('COMPLETED')}
                             disabled={isUpdating}
-                            className={`flex-1 bg-green-100 text-green-700 py-2 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-200'
-                                }`}
+                            className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold py-2 rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {isUpdating ? (
                                 <>
                                     <Loader2 className="w-4 h-4 animate-spin" />
                                     <span>Completing...</span>
                                 </>
-                            ) : 'Mark Complete'}
+                            ) : '✓ Mark Complete'}
                         </button>
                     )}
                 </div>
@@ -116,15 +137,14 @@ const RequestCard = ({ request, role, onAssign, onUpdateStatus, technicians = []
                 <button
                     onClick={() => handleStatusUpdate('COMPLETED')}
                     disabled={isUpdating}
-                    className={`w-full bg-green-100 text-green-700 py-2 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2 ${isUpdating ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-200'
-                        }`}
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold py-3 rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-4"
                 >
                     {isUpdating ? (
                         <>
                             <Loader2 className="w-4 h-4 animate-spin" />
                             <span>Completing...</span>
                         </>
-                    ) : 'Mark Complete'}
+                    ) : '✓ Mark Complete'}
                 </button>
             )}
         </div>

@@ -209,179 +209,189 @@ const VoiceAssistant = ({ currentUser, onRequestCreated }) => {
     };
 
     return (
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-lg p-6 mb-8">
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                    <Mic className="w-6 h-6 text-blue-600" />
-                    Voice Assistant
-                </h3>
-                <button
-                    onClick={() => setUseTextInput(!useTextInput)}
-                    className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
-                >
-                    {useTextInput ? '🎤 Use Microphone' : '⌨️ Type Instead'}
-                </button>
-            </div>
+        <div className="bg-gradient-to-r from-blue-600 via-cyan-500 to-indigo-600 rounded-2xl shadow-xl p-6 md:p-8 mb-8 text-white relative overflow-hidden animate-fade-in">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
 
-            {/* Voice/Text Input Area */}
-            <div className="space-y-4">
-                {!useTextInput ? (
-                    // Voice Recording
-                    <div className="flex flex-col items-center gap-4">
-                        <button
-                            onClick={isRecording ? stopRecording : startRecording}
-                            disabled={isProcessing}
-                            className={`relative w-20 h-20 rounded-full flex items-center justify-center transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg ${isRecording
-                                ? 'bg-red-500 hover:bg-red-600 animate-pulse'
-                                : 'bg-blue-500 hover:bg-blue-600'
-                                }`}
-                        >
-                            {isRecording ? (
-                                <MicOff className="w-10 h-10 text-white" />
-                            ) : (
-                                <Mic className="w-10 h-10 text-white" />
-                            )}
-                        </button>
-                        {isRecording && (
-                            <span className="text-sm font-medium text-red-600 animate-pulse">
-                                🔴 Recording... Tap to stop
-                            </span>
-                        )}
-                        {!isRecording && !isProcessing && (
-                            <p className="text-sm text-gray-600 text-center">
-                                Tap the microphone to start recording your maintenance request
-                            </p>
-                        )}
-                    </div>
-                ) : (
-                    // Text Input
-                    <div className="flex gap-2">
-                        <input
-                            type="text"
-                            value={textInput}
-                            onChange={(e) => setTextInput(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && sendTextToBackend()}
-                            placeholder="Type your maintenance request here..."
-                            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-                            disabled={isProcessing}
-                        />
-                        <button
-                            onClick={sendTextToBackend}
-                            disabled={isProcessing || !textInput.trim()}
-                            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors shadow-md hover:shadow-lg"
-                        >
-                            <Send className="w-5 h-5" />
-                            Send
-                        </button>
-                    </div>
-                )}
-
-                {/* Processing Indicator */}
-                {isProcessing && (
-                    <div className="flex items-center justify-center gap-2 text-blue-600 py-2">
-                        <Loader className="w-5 h-5 animate-spin" />
-                        <span className="font-medium">Processing your request...</span>
-                    </div>
-                )}
-
-                {/* Transcribed Text */}
-                {transcribedText && (
-                    <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
-                        <p className="text-sm font-semibold text-gray-700 mb-1">You said:</p>
-                        <p className="text-gray-900">{transcribedText}</p>
-                    </div>
-                )}
-
-                {/* Response */}
-                {response && (
-                    <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm space-y-3">
-                        <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
-                                <p className="text-sm font-semibold text-gray-700 mb-1">Assistant:</p>
-                                <p className="text-gray-900">{response.textResponse}</p>
+            <div className="relative z-10">
+                <div className="flex items-center justify-between mb-6">
+                    <div>
+                        <h3 className="text-2xl font-bold flex items-center gap-3">
+                            <div className="p-3 bg-white/20 rounded-xl backdrop-blur">
+                                <Mic className="w-6 h-6" />
                             </div>
-                            {response.audioResponseBase64 && (
-                                <button
-                                    onClick={isPlayingAudio ? stopAudio : () => playAudioResponse(response.audioResponseBase64)}
-                                    className="flex-shrink-0 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                                    title={isPlayingAudio ? "Stop audio" : "Play audio"}
-                                >
-                                    {isPlayingAudio ? (
-                                        <VolumeX className="w-5 h-5 text-red-500" />
-                                    ) : (
-                                        <Volume2 className="w-5 h-5 text-blue-500" />
-                                    )}
-                                </button>
-                            )}
-                        </div>
-
-                        {/* Created Ticket Info */}
-                        {response.createdTicket && (
-                            <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-                                <div className="flex items-center gap-2 mb-3">
-                                    <CheckCircle className="w-5 h-5 text-green-600" />
-                                    <span className="font-semibold text-green-800">Request Created Successfully!</span>
-                                </div>
-                                <div className="grid grid-cols-2 gap-3 text-sm">
-                                    <div className="flex flex-col">
-                                        <span className="text-gray-600 text-xs">Ticket Number</span>
-                                        <span className="font-semibold text-gray-900">#{response.createdTicket.id}</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-gray-600 text-xs">Category</span>
-                                        <span className="font-semibold text-gray-900">{response.createdTicket.category}</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-gray-600 text-xs">Priority</span>
-                                        <span className={`font-semibold ${response.createdTicket.priority === 'CRITICAL' ? 'text-red-600' :
-                                            response.createdTicket.priority === 'HIGH' ? 'text-orange-600' :
-                                                response.createdTicket.priority === 'MEDIUM' ? 'text-yellow-600' :
-                                                    'text-green-600'
-                                            }`}>
-                                            {response.createdTicket.priority}
-                                        </span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-gray-600 text-xs">Status</span>
-                                        <span className="font-semibold text-blue-600">{response.createdTicket.status}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+                            Smart Voice Assistant
+                        </h3>
+                        <p className="text-white/80 text-sm mt-1">Create requests with voice or text</p>
                     </div>
-                )}
-
-                {/* Error */}
-                {error && (
-                    <div className="bg-red-50 rounded-lg p-4 border border-red-200 shadow-sm">
-                        <div className="flex items-center gap-2">
-                            <XCircle className="w-5 h-5 text-red-600" />
-                            <p className="text-red-800 font-medium">{error}</p>
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {/* Examples */}
-            <div className="mt-6 pt-4 border-t border-gray-200">
-                <p className="text-xs font-semibold text-gray-700 mb-3">💡 Try these examples:</p>
-                <div className="flex flex-wrap gap-2">
-                    {[
-                        "My AC is not working",
-                        "There's a water leak in the bathroom",
-                        "The lights in the hallway are out",
-                        "Emergency! Gas smell in kitchen"
-                    ].map((example, idx) => (
-                        <button
-                            key={idx}
-                            onClick={() => handleExampleClick(example)}
-                            className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-xs hover:bg-blue-200 transition-colors font-medium"
-                        >
-                            "{example}"
-                        </button>
-                    ))}
+                    <button
+                        onClick={() => setUseTextInput(!useTextInput)}
+                        className="text-white bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg font-semibold transition-all duration-300 backdrop-blur border border-white/30"
+                    >
+                        {useTextInput ? '🎤 Microphone' : '⌨️ Text'}
+                    </button>
                 </div>
-            </div>
+
+                {/* Voice/Text Input Area */}
+                <div className="space-y-4">
+                    {!useTextInput ? (
+                        // Voice Recording
+                        <div className="flex flex-col items-center gap-4 py-6">
+                            <button
+                                onClick={isRecording ? stopRecording : startRecording}
+                                disabled={isProcessing}
+                                className={`relative w-24 h-24 rounded-full flex items-center justify-center transition-all transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl font-bold text-lg ${isRecording
+                                    ? 'bg-red-500 hover:bg-red-600 animate-pulse'
+                                    : 'bg-white text-blue-600 hover:bg-yellow-50'
+                                    }`}
+                            >
+                                {isRecording ? (
+                                    <MicOff className="w-10 h-10" />
+                                ) : (
+                                    <Mic className="w-10 h-10" />
+                                )}
+                            </button>
+                            {isRecording && (
+                                <span className="text-sm font-bold text-yellow-200 animate-pulse">
+                                    🔴 Recording... Tap to stop
+                                </span>
+                            )}
+                            {!isRecording && !isProcessing && (
+                                <p className="text-sm text-center text-white/90">
+                                    Tap the microphone to start recording your request
+                                </p>
+                            )}
+                        </div>
+                    ) : (
+                        // Text Input
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={textInput}
+                                onChange={(e) => setTextInput(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && sendTextToBackend()}
+                                placeholder="Type your maintenance request..."
+                                className="flex-1 px-4 py-3 rounded-lg focus:ring-2 focus:ring-yellow-300 focus:border-transparent outline-none bg-white/90 text-gray-900 font-medium placeholder-gray-500"
+                                disabled={isProcessing}
+                            />
+                            <button
+                                onClick={sendTextToBackend}
+                                disabled={isProcessing || !textInput.trim()}
+                                className="px-6 py-3 bg-white text-blue-600 rounded-lg hover:bg-yellow-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all shadow-lg font-bold hover:shadow-xl"
+                            >
+                                <Send className="w-5 h-5" />
+                                Send
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Processing Indicator */}
+                    {isProcessing && (
+                        <div className="flex items-center justify-center gap-2 text-white py-2 bg-white/10 rounded-lg backdrop-blur border border-white/20">
+                            <Loader className="w-5 h-5 animate-spin" />
+                            <span className="font-semibold">Processing...</span>
+                        </div>
+                    )}
+
+                    {/* Transcribed Text */}
+                    {transcribedText && (
+                        <div className="bg-white/15 rounded-lg p-4 border border-white/30 backdrop-blur">
+                            <p className="text-sm font-bold text-white/80 mb-1">You said:</p>
+                            <p className="text-white text-lg">{transcribedText}</p>
+                        </div>
+                    )}
+
+                    {/* Response */}
+                    {response && (
+                        <div className="bg-white/15 rounded-lg p-4 border border-white/30 backdrop-blur space-y-3">
+                            <div className="flex items-start justify-between gap-4">
+                                <div className="flex-1">
+                                    <p className="text-sm font-bold text-white/80 mb-2">Assistant Response:</p>
+                                    <p className="text-white">{response.textResponse}</p>
+                                </div>
+                                {response.audioResponseBase64 && (
+                                    <button
+                                        onClick={isPlayingAudio ? stopAudio : () => playAudioResponse(response.audioResponseBase64)}
+                                        className="flex-shrink-0 p-2 rounded-lg hover:bg-white/20 transition-colors"
+                                        title={isPlayingAudio ? "Stop audio" : "Play audio"}
+                                    >
+                                        {isPlayingAudio ? (
+                                            <VolumeX className="w-5 h-5 text-yellow-300" />
+                                        ) : (
+                                            <Volume2 className="w-5 h-5 text-white" />
+                                        )}
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Created Ticket Info */}
+                            {response.createdTicket && (
+                                <div className="bg-white/10 rounded-lg p-4 border border-white/20 mt-3">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <CheckCircle className="w-5 h-5 text-green-300" />
+                                        <span className="font-bold text-white">Request Created!</span>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3 text-sm text-white/90">
+                                        <div className="flex flex-col">
+                                            <span className="text-white/60 text-xs">Ticket #</span>
+                                            <span className="font-bold text-white">#{response.createdTicket.id}</span>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-white/60 text-xs">Category</span>
+                                            <span className="font-bold text-white">{response.createdTicket.category}</span>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-white/60 text-xs">Priority</span>
+                                            <span className={`font-bold ${response.createdTicket.priority === 'CRITICAL' ? 'text-red-300' :
+                                                response.createdTicket.priority === 'HIGH' ? 'text-orange-300' :
+                                                    response.createdTicket.priority === 'MEDIUM' ? 'text-yellow-300' :
+                                                        'text-green-300'
+                                                }`}>
+                                                {response.createdTicket.priority}
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="text-white/60 text-xs">Status</span>
+                                            <span className="font-bold text-cyan-300">{response.createdTicket.status}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Error */}
+                    {error && (
+                        <div className="bg-red-50 rounded-lg p-4 border border-red-200 shadow-sm">
+                            <div className="flex items-center gap-2">
+                                <XCircle className="w-5 h-5 text-red-600" />
+                                <p className="text-red-800 font-medium">{error}</p>
+                            </div>
+                        </div>
+                    )}
+                </div>{/* ← closes space-y-4 */}
+
+                {/* Examples */}
+                <div className="mt-6 pt-4 border-t border-white/20">
+                    <p className="text-xs font-semibold text-white/80 mb-3">💡 Try these examples:</p>
+                    <div className="flex flex-wrap gap-2">
+                        {[
+                            "My AC is not working",
+                            "There's a water leak in the bathroom",
+                            "The lights in the hallway are out",
+                            "Emergency! Gas smell in kitchen"
+                        ].map((example, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => handleExampleClick(example)}
+                                className="px-3 py-2 bg-white/20 text-white rounded-lg text-xs hover:bg-white/30 transition-colors font-medium border border-white/30"
+                            >
+                                "{example}"
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>{/* ← closes relative z-10 */}
         </div>
     );
 };
