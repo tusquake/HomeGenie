@@ -110,8 +110,8 @@ const AdminDashboard = () => {
                                     key={f}
                                     onClick={() => setFilter(f)}
                                     className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${filter === f
-                                            ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg'
-                                            : 'bg-white text-gray-700 hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300'
+                                        ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg'
+                                        : 'bg-white text-gray-700 hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300'
                                         }`}
                                 >
                                     {f.replace('_', ' ')}

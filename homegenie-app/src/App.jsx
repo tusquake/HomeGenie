@@ -4,6 +4,9 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import LandingPage from './pages/LandingPage';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AdminDashboard from './pages/AdminDashboard';
@@ -14,15 +17,18 @@ const ROLE_ROUTES = { ADMIN: '/admin', RESIDENT: '/resident', TECHNICIAN: '/tech
 
 const HomeRedirect = () => {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/login" replace />;
-  return <Navigate to={ROLE_ROUTES[user.role] || '/login'} replace />;
+  if (!user) return <Navigate to="/" replace />;
+  return <Navigate to={ROLE_ROUTES[user.role] || '/'} replace />;
 };
 
 const App = () => (
   <>
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/privacy" element={<Privacy />} />
+      <Route path="/terms" element={<Terms />} />
 
       <Route path="/admin" element={
         <ProtectedRoute allowedRoles={['ADMIN']}>

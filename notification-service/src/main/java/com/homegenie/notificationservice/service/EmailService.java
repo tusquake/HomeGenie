@@ -150,7 +150,7 @@ public class EmailService {
         sendEmail(adminEmail, subject, htmlBody);
     }
 
-    private void sendEmail(String to, String subject, String htmlBody) {
+    public void sendEmail(String to, String subject, String htmlBody) {
         try {
             if ("ses".equalsIgnoreCase(emailProvider) && sesClient != null) {
                 sendViaSES(to, subject, htmlBody);

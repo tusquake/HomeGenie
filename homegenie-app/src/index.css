@@ -4,15 +4,20 @@
 
 @layer base {
   body {
-    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50;
+    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-blue-900;
   }
 
   * {
     @apply transition-colors duration-300;
   }
+
+  html.dark {
+    color-scheme: dark;
+  }
 }
 
 @layer components {
+
   /* Button Styles */
   .btn-primary {
     @apply bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold px-6 py-3 rounded-lg hover:from-blue-700 hover:to-cyan-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95;
@@ -41,7 +46,7 @@
 
   /* Form Input Styles */
   .input-field {
-    @apply w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all duration-300;
+    @apply w-full px-4 py-3 bg-gray-50 text-gray-900 border-2 border-gray-200 dark:bg-slate-800 dark:text-gray-100 dark:border-slate-700 rounded-xl focus:border-blue-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all duration-300 placeholder-gray-400 dark:placeholder-gray-500;
   }
 
   /* Badge Styles */
@@ -81,6 +86,7 @@
   0% {
     background-position: -1000px 0;
   }
+
   100% {
     background-position: 1000px 0;
   }
@@ -90,4 +96,58 @@
   animation: shimmer 2s infinite;
   background: linear-gradient(to right, #f0f0f0 8%, #f9f9f9 18%, #f0f0f0 33%);
   background-size: 800px 104px;
+}
+
+/* Animation Delays */
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Blob Animation */
+@keyframes blob {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  33% {
+    transform: translate(18px, -30px) scale(1.04);
+  }
+
+  66% {
+    transform: translate(-12px, 12px) scale(0.97);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.hero-bg {
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+@keyframes floaty {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.device {
+  animation: floaty 4s ease-in-out infinite;
 }
