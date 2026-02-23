@@ -19,30 +19,18 @@ public class SecurityConfig {
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-                                http
-                                                                .csrf(csrf -> csrf.disable())
-                                                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                                                                .sessionManagement(session -> session
-                                                                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                                                .authorizeHttpRequests(auth -> auth
-                                                                                                .requestMatchers("/api/auth/**").permitAll()
-                                                                                                .requestMatchers("/api/users/**").permitAll()
-                                                                                                .requestMatchers("/api/visits/**").permitAll()
-                                                                                                .requestMatchers("/actuator/**").permitAll()
-                                                                                                .anyRequest().authenticated());
+                http
+                                .csrf(csrf -> csrf.disable())
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/api/auth/**").permitAll()
+                                                .requestMatchers("/api/users/**").permitAll()
+                                                .requestMatchers("/api/visits/**").permitAll()
+                                                .requestMatchers("/actuator/**").permitAll()
+                                                .anyRequest().authenticated());
                 return http.build();
         }
-
-                @Bean
-                public CorsConfigurationSource corsConfigurationSource() {
-                        CorsConfiguration config = new CorsConfiguration();
-                        config.setAllowedOrigins(List.of("*"));
-                        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                        config.setAllowedHeaders(List.of("*"));
-                        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-                        source.registerCorsConfiguration("/**", config);
-                        return source;
-                }
 
         @Bean
         public PasswordEncoder passwordEncoder() {
