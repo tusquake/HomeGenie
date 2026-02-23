@@ -109,7 +109,7 @@ const LandingPage = () => {
                 transition={{ duration: 0.8, delay: 0.4 }}
                 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight text-slate-900 dark:text-white mb-8"
               >
-                Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">HomeGenie</span>
+                Welcome to <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-yellow-500">HomeGenie</span>
               </motion.h1>
 
               <motion.p
@@ -171,7 +171,7 @@ const LandingPage = () => {
           {/* Efficiency Metrics */}
           <section className="py-20 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-slate-900 border-y border-gray-100 dark:border-slate-800">
             <div className="max-w-6xl mx-auto">
-              <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h2 className="text-4xl font-bold text-center mb-12 bg-gradient-to-r from-blue-600 to-yellow-500 bg-clip-text text-transparent">
                 Automating the Future
               </h2>
               <EfficiencyMetrics />
@@ -304,7 +304,7 @@ const LandingPage = () => {
           {/* Book a Demo Section */}
           <section id="demo" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent via-blue-50/50 dark:via-slate-900/50 to-transparent">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-4xl font-bold text-center mb-4 bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+              <h2 className="text-4xl font-bold text-center mb-4 bg-gradient-to-r from-blue-600 to-yellow-500 bg-clip-text text-transparent">
                 Book a Demo
               </h2>
               <p className="text-center text-gray-700 dark:text-gray-300 mb-12 text-lg max-w-2xl mx-auto">

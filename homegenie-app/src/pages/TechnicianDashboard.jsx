@@ -43,7 +43,7 @@ const TechnicianDashboard = () => {
     const completedCount = requests.filter(r => r.status === 'COMPLETED').length;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-yellow-50">
             <Header user={user} onLogout={logout} role="TECHNICIAN" />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -60,7 +60,7 @@ const TechnicianDashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fade-in">
                     <div className="card">
                         <div className="flex items-center justify-between mb-2">
-                            <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl text-white">
+                            <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl text-white">
                                 <Zap className="w-6 h-6" />
                             </div>
                         </div>
@@ -91,7 +91,7 @@ const TechnicianDashboard = () => {
                 <div className="mb-8 animate-fade-in">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                         <div>
-                            <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-3">
+                            <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-yellow-500 bg-clip-text text-transparent flex items-center gap-3">
                                 <ClipboardList className="w-7 h-7 text-blue-600" />
                                 Tasks
                             </h3>
@@ -104,8 +104,8 @@ const TechnicianDashboard = () => {
                                     key={f}
                                     onClick={() => setFilter(f)}
                                     className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${filter === f
-                                            ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg'
-                                            : 'bg-white text-gray-700 hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300'
+                                        ? 'bg-gradient-to-r from-blue-600 to-yellow-500 text-white shadow-lg'
+                                        : 'bg-white text-gray-700 hover:bg-blue-50 border-2 border-gray-200 hover:border-blue-300'
                                         }`}
                                 >
                                     {f.replace('_', ' ')}
