@@ -19,145 +19,77 @@ on:
 env:
   GCP_REGION: ${{ secrets.GCP_REGION }}
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  REPO_NAME: homegenie-repo
   IMAGE_BASE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/homegenie-repo
 
 jobs:
-  test-user-service:
+  filter:
     runs-on: ubuntu-latest
-    defaults:
-      run:
+    outputs:
+      user-service: ${{ steps.filter.outputs.user_service }}
+      maintenance-service: ${{ steps.filter.outputs.maintenance_service }}
+      notification-service: ${{ steps.filter.outputs.notification_service }}
+      voice-service: ${{ steps.filter.outputs.voice_service }}
+      api-gateway: ${{ steps.filter.outputs.api_gateway }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            user_service:
+              - 'userservice/**'
+              - '.github/workflows/ci-cd.yml'
+            maintenance_service:
+              - 'maintenanceservice/**'
+              - '.github/workflows/ci-cd.yml'
+            notification_service:
+              - 'notification-service/**'
+              - '.github/workflows/ci-cd.yml'
+            voice_service:
+              - 'python-voice-service/**'
+              - '.github/workflows/ci-cd.yml'
+            api_gateway:
+              - 'api-gateway/**'
+              - '.github/workflows/ci-cd.yml'
+
+  user-service:
+    needs: filter
+    if: needs.filter.outputs.user-service == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Run Tests
         working-directory: userservice
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
-      - name: Run Tests
         run: |
           chmod +x ./mvnw
           ./mvnw test -B
-      - name: Build
-        run: ./mvnw package -DskipTests -B
-
-  test-maintenance-service:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: maintenanceservice
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
-      - name: Run Tests
-        run: |
-          chmod +x ./mvnw
-          ./mvnw test -B
-      - name: Build
-        run: ./mvnw package -DskipTests -B
-
-  test-notification-service:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: notification-service
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
-      - name: Run Tests
-        run: mvn test -B
-      - name: Build
-        run: mvn package -DskipTests -B
-
-  build-gateway:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: api-gateway
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven'
-      - name: Build
-        run: mvn package -DskipTests -B
-
-  build-and-push:
-    needs: [test-user-service, test-maintenance-service, test-notification-service, build-gateway]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Authenticate to Google Cloud
+      
+      # Build & Push & Deploy - only on main branch push
+      - name: Authenticate to GCP
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
       - name: Set up Cloud SDK
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: google-github-actions/setup-gcloud@v2
-
-      - name: Configure Docker for Artifact Registry
+      - name: Configure Docker
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev --quiet
-
-      - name: Build & Push user-service
+      - name: Build & Push
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           docker build -t ${{ env.IMAGE_BASE }}/user-service:latest -t ${{ env.IMAGE_BASE }}/user-service:${{ github.sha }} ./userservice
           docker push ${{ env.IMAGE_BASE }}/user-service:latest
           docker push ${{ env.IMAGE_BASE }}/user-service:${{ github.sha }}
-
-      - name: Build & Push maintenance-service
-        run: |
-          docker build -t ${{ env.IMAGE_BASE }}/maintenance-service:latest -t ${{ env.IMAGE_BASE }}/maintenance-service:${{ github.sha }} ./maintenanceservice
-          docker push ${{ env.IMAGE_BASE }}/maintenance-service:latest
-          docker push ${{ env.IMAGE_BASE }}/maintenance-service:${{ github.sha }}
-
-      - name: Build & Push notification-service
-        run: |
-          docker build -t ${{ env.IMAGE_BASE }}/notification-service:latest -t ${{ env.IMAGE_BASE }}/notification-service:${{ github.sha }} ./notification-service
-          docker push ${{ env.IMAGE_BASE }}/notification-service:latest
-          docker push ${{ env.IMAGE_BASE }}/notification-service:${{ github.sha }}
-
-      - name: Build & Push voice-service
-        run: |
-          docker build -t ${{ env.IMAGE_BASE }}/voice-service:latest -t ${{ env.IMAGE_BASE }}/voice-service:${{ github.sha }} ./python-voice-service
-          docker push ${{ env.IMAGE_BASE }}/voice-service:latest
-          docker push ${{ env.IMAGE_BASE }}/voice-service:${{ github.sha }}
-
-      - name: Build & Push api-gateway
-        run: |
-          docker build -t ${{ env.IMAGE_BASE }}/api-gateway:latest -t ${{ env.IMAGE_BASE }}/api-gateway:${{ github.sha }} ./api-gateway
-          docker push ${{ env.IMAGE_BASE }}/api-gateway:latest
-          docker push ${{ env.IMAGE_BASE }}/api-gateway:${{ github.sha }}
-
-  deploy-backend-services:
-    needs: [build-and-push]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: Deploy user-service to Cloud Run
+      - name: Deploy
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           gcloud run deploy user-service \
             --image=${{ env.IMAGE_BASE }}/user-service:${{ github.sha }} \
@@ -168,7 +100,43 @@ jobs:
             --set-env-vars="SPRING_PROFILES_ACTIVE=prod,CLOUD_SQL_ENABLED=true,CLOUD_SQL_INSTANCE=${{ secrets.CLOUD_SQL_INSTANCE }},CLOUD_SQL_DB=homegenie_users,DB_USERNAME=${{ secrets.DB_USERNAME }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},JWT_SECRET=${{ secrets.JWT_SECRET }}" \
             --quiet
 
-      - name: Deploy maintenance-service to Cloud Run
+  maintenance-service:
+    needs: filter
+    if: needs.filter.outputs.maintenance-service == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Run Tests
+        working-directory: maintenanceservice
+        run: |
+          chmod +x ./mvnw
+          ./mvnw test -B
+      
+      - name: Authenticate to GCP
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - name: Set up Cloud SDK
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: google-github-actions/setup-gcloud@v2
+      - name: Configure Docker
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev --quiet
+      - name: Build & Push
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          docker build -t ${{ env.IMAGE_BASE }}/maintenance-service:latest -t ${{ env.IMAGE_BASE }}/maintenance-service:${{ github.sha }} ./maintenanceservice
+          docker push ${{ env.IMAGE_BASE }}/maintenance-service:latest
+          docker push ${{ env.IMAGE_BASE }}/maintenance-service:${{ github.sha }}
+      - name: Deploy
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           gcloud run deploy maintenance-service \
             --image=${{ env.IMAGE_BASE }}/maintenance-service:${{ github.sha }} \
@@ -179,7 +147,41 @@ jobs:
             --set-env-vars="SPRING_PROFILES_ACTIVE=prod,CLOUD_SQL_ENABLED=true,CLOUD_SQL_INSTANCE=${{ secrets.CLOUD_SQL_INSTANCE }},CLOUD_SQL_DB=homegenie_maintenance,DB_USERNAME=${{ secrets.DB_USERNAME }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},GCP_STORAGE_BUCKET=${{ secrets.GCP_STORAGE_BUCKET }}" \
             --quiet
 
-      - name: Deploy notification-service to Cloud Run
+  notification-service:
+    needs: filter
+    if: needs.filter.outputs.notification-service == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Run Tests
+        working-directory: notification-service
+        run: mvn test -B
+      
+      - name: Authenticate to GCP
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - name: Set up Cloud SDK
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: google-github-actions/setup-gcloud@v2
+      - name: Configure Docker
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev --quiet
+      - name: Build & Push
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          docker build -t ${{ env.IMAGE_BASE }}/notification-service:latest -t ${{ env.IMAGE_BASE }}/notification-service:${{ github.sha }} ./notification-service
+          docker push ${{ env.IMAGE_BASE }}/notification-service:latest
+          docker push ${{ env.IMAGE_BASE }}/notification-service:${{ github.sha }}
+      - name: Deploy
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           gcloud run deploy notification-service \
             --image=${{ env.IMAGE_BASE }}/notification-service:${{ github.sha }} \
@@ -189,7 +191,31 @@ jobs:
             --set-env-vars="SPRING_PROFILES_ACTIVE=prod" \
             --quiet
 
-      - name: Deploy voice-service to Cloud Run
+  voice-service:
+    needs: filter
+    if: needs.filter.outputs.voice-service == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Authenticate to GCP
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      - name: Set up Cloud SDK
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: google-github-actions/setup-gcloud@v2
+      - name: Configure Docker
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev --quiet
+      - name: Build & Push
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          docker build -t ${{ env.IMAGE_BASE }}/voice-service:latest -t ${{ env.IMAGE_BASE }}/voice-service:${{ github.sha }} ./python-voice-service
+          docker push ${{ env.IMAGE_BASE }}/voice-service:latest
+          docker push ${{ env.IMAGE_BASE }}/voice-service:${{ github.sha }}
+      - name: Deploy
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           gcloud run deploy voice-service \
             --image=${{ env.IMAGE_BASE }}/voice-service:${{ github.sha }} \
@@ -199,29 +225,46 @@ jobs:
             --set-env-vars="GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" \
             --quiet
 
-  deploy-api-gateway:
-    needs: [deploy-backend-services]
+  api-gateway:
+    needs: filter
+    if: needs.filter.outputs.api-gateway == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Authenticate to Google Cloud
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Build Check
+        working-directory: api-gateway
+        run: mvn package -DskipTests -B
+      
+      - name: Authenticate to GCP
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
-
       - name: Set up Cloud SDK
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: google-github-actions/setup-gcloud@v2
-
-      - name: Get Service URLs & Deploy API Gateway
+      - name: Configure Docker
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: gcloud auth configure-docker ${{ env.GCP_REGION }}-docker.pkg.dev --quiet
+      - name: Build & Push
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
-          USER_URL=$(gcloud run services describe user-service --region=${{ env.GCP_REGION }} --format='value(status.url)')
-          MAINT_URL=$(gcloud run services describe maintenance-service --region=${{ env.GCP_REGION }} --format='value(status.url)')
-          VOICE_URL=$(gcloud run services describe voice-service --region=${{ env.GCP_REGION }} --format='value(status.url)')
-          NOTIF_URL=$(gcloud run services describe notification-service --region=${{ env.GCP_REGION }} --format='value(status.url)')
-
-          echo "User Service:         $USER_URL"
-          echo "Maintenance Service:  $MAINT_URL"
-          echo "Voice Service:        $VOICE_URL"
-          echo "Notification Service: $NOTIF_URL"
+          docker build -t ${{ env.IMAGE_BASE }}/api-gateway:latest -t ${{ env.IMAGE_BASE }}/api-gateway:${{ github.sha }} ./api-gateway
+          docker push ${{ env.IMAGE_BASE }}/api-gateway:latest
+          docker push ${{ env.IMAGE_BASE }}/api-gateway:${{ github.sha }}
+      - name: Deploy
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          USER_URL=$(gcloud run services describe user-service --region=${{ env.GCP_REGION }} --format='value(status.url)') || echo "URL_NOT_FOUND"
+          MAINT_URL=$(gcloud run services describe maintenance-service --region=${{ env.GCP_REGION }} --format='value(status.url)') || echo "URL_NOT_FOUND"
+          VOICE_URL=$(gcloud run services describe voice-service --region=${{ env.GCP_REGION }} --format='value(status.url)') || echo "URL_NOT_FOUND"
+          NOTIF_URL=$(gcloud run services describe notification-service --region=${{ env.GCP_REGION }} --format='value(status.url)') || echo "URL_NOT_FOUND"
 
           gcloud run deploy api-gateway \
             --image=${{ env.IMAGE_BASE }}/api-gateway:${{ github.sha }} \
@@ -230,11 +273,3 @@ jobs:
             --allow-unauthenticated \
             --set-env-vars="USER_SERVICE_URL=${USER_URL},MAINTENANCE_SERVICE_URL=${MAINT_URL},VOICE_SERVICE_URL=${VOICE_URL},NOTIFICATION_SERVICE_URL=${NOTIF_URL},CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }},JWT_SECRET=${{ secrets.JWT_SECRET }},REDIS_HOST=${{ secrets.REDIS_HOST }},REDIS_PORT=${{ secrets.REDIS_PORT }},REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }},REDIS_SSL=true" \
             --quiet
-
-      - name: Print API Gateway URL
-        run: |
-          GATEWAY_URL=$(gcloud run services describe api-gateway --region=${{ env.GCP_REGION }} --format='value(status.url)')
-          echo "============================================"
-          echo "🎉 Deployment Complete!"
-          echo "🌐 API Gateway URL: $GATEWAY_URL"
-          echo "============================================"
