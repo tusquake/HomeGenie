@@ -31,13 +31,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: "*"
   endpoint:
     health:
       show-details: always
-  health:
-    db:
-      enabled: false
+      probes:
+        enabled: true
 
 logging:
   level:

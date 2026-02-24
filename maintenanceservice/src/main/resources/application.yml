@@ -113,10 +113,12 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,circuitbreakers
+        include: "*"
   endpoint:
     health:
       show-details: always
+      probes:
+        enabled: true
   health:
     db:
       enabled: false

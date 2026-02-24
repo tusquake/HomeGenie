@@ -34,14 +34,15 @@ aws:
     from-email: ${SES_FROM_EMAIL:noreply@homegenie.com}
 
 management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
   endpoint:
     health:
       show-details: always
-  health:
-    rabbitmq:
-      enabled: false
-    mail:
-      enabled: false
+      probes:
+        enabled: true
 
 logging:
   level:
