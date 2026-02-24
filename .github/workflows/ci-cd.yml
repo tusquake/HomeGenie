@@ -140,13 +140,16 @@ jobs:
       - name: Deploy
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
+          USER_URL=$(gcloud run services describe user-service --region=${{ env.GCP_REGION }} --format='value(status.url)') || echo "URL_NOT_FOUND"
+          VOICE_URL=$(gcloud run services describe voice-service --region=${{ env.GCP_REGION }} --format='value(status.url)') || echo "URL_NOT_FOUND"
+
           gcloud run deploy maintenance-service \
             --image=${{ env.IMAGE_BASE }}/maintenance-service:${{ github.sha }} \
             --region=${{ env.GCP_REGION }} \
             --platform=managed \
             --allow-unauthenticated \
             --add-cloudsql-instances=${{ secrets.CLOUD_SQL_INSTANCE }} \
-            --set-env-vars="SPRING_PROFILES_ACTIVE=prod,CLOUD_SQL_ENABLED=true,CLOUD_SQL_INSTANCE=${{ secrets.CLOUD_SQL_INSTANCE }},CLOUD_SQL_DB=homegenie_maintenance,DB_USERNAME=${{ secrets.DB_USERNAME }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},GCP_STORAGE_BUCKET=${{ secrets.GCP_STORAGE_BUCKET }}" \
+            --set-env-vars="SPRING_PROFILES_ACTIVE=prod,CLOUD_SQL_ENABLED=true,CLOUD_SQL_INSTANCE=${{ secrets.CLOUD_SQL_INSTANCE }},CLOUD_SQL_DB=homegenie_maintenance,DB_USERNAME=${{ secrets.DB_USERNAME }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},GCP_STORAGE_BUCKET=${{ secrets.GCP_STORAGE_BUCKET }},REDIS_HOST=${{ secrets.REDIS_HOST }},REDIS_PORT=${{ secrets.REDIS_PORT }},REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }},REDIS_SSL=true,RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }},RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }},RABBITMQ_USERNAME=${{ secrets.RABBITMQ_USERNAME }},RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }},USER_SERVICE_URL=${USER_URL},VOICE_SERVICE_URL=${VOICE_URL},ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}" \
             --liveness-probe="httpGet.path=/actuator/health/liveness" \
             --startup-probe="httpGet.path=/actuator/health/readiness,failureThreshold=30,periodSeconds=10" \
             --quiet
@@ -192,7 +195,7 @@ jobs:
             --region=${{ env.GCP_REGION }} \
             --platform=managed \
             --allow-unauthenticated \
-            --set-env-vars="SPRING_PROFILES_ACTIVE=prod" \
+            --set-env-vars="SPRING_PROFILES_ACTIVE=prod,RABBITMQ_HOST=${{ secrets.RABBITMQ_HOST }},RABBITMQ_PORT=${{ secrets.RABBITMQ_PORT }},RABBITMQ_USERNAME=${{ secrets.RABBITMQ_USERNAME }},RABBITMQ_PASSWORD=${{ secrets.RABBITMQ_PASSWORD }},SMTP_HOST=${{ secrets.SMTP_HOST }},SMTP_PORT=${{ secrets.SMTP_PORT }},SMTP_USERNAME=${{ secrets.SMTP_USERNAME }},SMTP_PASSWORD=${{ secrets.SMTP_PASSWORD }},EMAIL_FROM=${{ secrets.EMAIL_FROM }},ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}" \
             --liveness-probe="httpGet.path=/actuator/health/liveness" \
             --startup-probe="httpGet.path=/actuator/health/readiness,failureThreshold=25,periodSeconds=10" \
             --quiet
