@@ -99,7 +99,7 @@ jobs:
             --add-cloudsql-instances=${{ secrets.CLOUD_SQL_INSTANCE }} \
             --set-env-vars="SPRING_PROFILES_ACTIVE=prod,CLOUD_SQL_ENABLED=true,CLOUD_SQL_INSTANCE=${{ secrets.CLOUD_SQL_INSTANCE }},CLOUD_SQL_DB=homegenie_users,DB_USERNAME=${{ secrets.DB_USERNAME }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},JWT_SECRET=${{ secrets.JWT_SECRET }}" \
             --liveness-probe="httpGet.path=/actuator/health" \
-            --startup-probe="httpGet.path=/actuator/health,failureThreshold=20,periodSeconds=10" \
+            --startup-probe="httpGet.path=/actuator/health,failureThreshold=25,periodSeconds=10" \
             --quiet
 
   maintenance-service:
@@ -148,7 +148,7 @@ jobs:
             --add-cloudsql-instances=${{ secrets.CLOUD_SQL_INSTANCE }} \
             --set-env-vars="SPRING_PROFILES_ACTIVE=prod,CLOUD_SQL_ENABLED=true,CLOUD_SQL_INSTANCE=${{ secrets.CLOUD_SQL_INSTANCE }},CLOUD_SQL_DB=homegenie_maintenance,DB_USERNAME=${{ secrets.DB_USERNAME }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},GCP_STORAGE_BUCKET=${{ secrets.GCP_STORAGE_BUCKET }}" \
             --liveness-probe="httpGet.path=/actuator/health" \
-            --startup-probe="httpGet.path=/actuator/health" \
+            --startup-probe="httpGet.path=/actuator/health,failureThreshold=25,periodSeconds=10" \
             --quiet
 
   notification-service:
@@ -194,7 +194,7 @@ jobs:
             --allow-unauthenticated \
             --set-env-vars="SPRING_PROFILES_ACTIVE=prod" \
             --liveness-probe="httpGet.path=/actuator/health" \
-            --startup-probe="httpGet.path=/actuator/health" \
+            --startup-probe="httpGet.path=/actuator/health,failureThreshold=25,periodSeconds=10" \
             --quiet
 
   voice-service:

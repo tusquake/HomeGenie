@@ -34,7 +34,10 @@ management:
         include: health,info
   endpoint:
     health:
-      show-details: when-authorized
+      show-details: always
+  health:
+    db:
+      enabled: false
 
 logging:
   level:

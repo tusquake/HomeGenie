@@ -116,8 +116,12 @@ management:
         include: health,info,metrics,circuitbreakers
   endpoint:
     health:
-      show-details: when-authorized
+      show-details: always
   health:
+    db:
+      enabled: false
+    rabbitmq:
+      enabled: false
     circuitbreakers:
       enabled: true
 
