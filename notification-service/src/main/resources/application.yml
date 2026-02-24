@@ -5,10 +5,13 @@ spring:
   application:
     name: notification-service
   rabbitmq:
+    addresses: ${RABBITMQ_URL:}
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:guest}
     password: ${RABBITMQ_PASSWORD:guest}
+    ssl:
+      enabled: ${RABBITMQ_SSL:false}
   mail:
     host: ${SMTP_HOST:smtp.gmail.com}
     port: ${SMTP_PORT:587}

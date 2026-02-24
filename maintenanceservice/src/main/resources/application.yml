@@ -4,9 +4,6 @@ server:
 spring:
   application:
     name: maintenance-service
-  autoconfigure:
-    exclude:
-      - com.google.cloud.spring.autoconfigure.storage.GcpStorageAutoConfiguration
   cloud:
     gcp:
       sql:
@@ -36,6 +33,7 @@ spring:
     caffeine:
       spec: maximumSize=500,expireAfterWrite=300s
   rabbitmq:
+    addresses: ${RABBITMQ_URL:}
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:guest}
