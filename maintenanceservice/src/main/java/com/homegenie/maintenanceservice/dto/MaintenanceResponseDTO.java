@@ -5,10 +5,12 @@ import com.homegenie.maintenanceservice.model.Priority;
 import com.homegenie.maintenanceservice.model.Status;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-public class MaintenanceResponseDTO {
+public class MaintenanceResponseDTO implements Serializable {
+    private static final long serialVersionUID = 1L;
     private Long id;
     private Long userId;
     private String userName;
