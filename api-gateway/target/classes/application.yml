@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 spring:
   application:
@@ -78,8 +78,13 @@ management:
       exposure:
         include: health,info,gateway
   endpoint:
+    health:
+      show-details: always
     gateway:
       enabled: true
+  health:
+    redis:
+      enabled: false
 
 logging:
   level:
