@@ -32,10 +32,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             "/api/users",
             "/api/visits",
             "/api/notifications/demo",
-            "/v3/api-docs/",
-            "/swagger-ui/",
+            "/v3/api-docs",
+            "/swagger-ui",
             "/swagger-ui.html",
-            "/actuator/",
+            "/webjars",
+            "/actuator",
             "/health");
 
     @Override
