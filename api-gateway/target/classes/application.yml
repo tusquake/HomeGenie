@@ -40,6 +40,25 @@ spring:
           predicates:
             - Path=/api/notifications/**
 
+        - id: openapi-user
+          uri: ${USER_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/v3/api-docs/user-service
+          filters:
+            - RewritePath=/v3/api-docs/user-service, /v3/api-docs
+        - id: openapi-maintenance
+          uri: ${MAINTENANCE_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/v3/api-docs/maintenance-service
+          filters:
+            - RewritePath=/v3/api-docs/maintenance-service, /v3/api-docs
+        - id: openapi-notification
+          uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/v3/api-docs/notification-service
+          filters:
+            - RewritePath=/v3/api-docs/notification-service, /v3/api-docs
+
       globalcors:
         cors-configurations:
           '[/**]':
@@ -93,3 +112,14 @@ logging:
     root: INFO
     com.homegenie: DEBUG
     org.springframework.cloud.gateway: INFO
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: User Service
+        url: /v3/api-docs/user-service
+      - name: Maintenance Service
+        url: /v3/api-docs/maintenance-service
+      - name: Notification Service
+        url: /v3/api-docs/notification-service
