@@ -1,0 +1,23 @@
+spring:
+  cloud:
+    gcp:
+      project-id: ${SPRING_CLOUD_GCP_PROJECT_ID}
+  data:
+    redis:
+      connect-timeout: 5000 # Increased timeout for production
+      ssl:
+        enabled: ${REDIS_SSL:true}
+
+management:
+  health:
+    redis:
+      enabled: true # Keep enabled but monitored
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLING_PROBABILITY:1.0}
+
+logging:
+  level:
+    root: INFO
+    com.homegenie: INFO
+    org.springframework.cloud.gateway: INFO
