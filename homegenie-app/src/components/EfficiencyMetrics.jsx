@@ -4,7 +4,7 @@ import { Clock, CheckCircle2, TrendingUp, AlertTriangle, FileSpreadsheet, Messag
 const EfficiencyMetrics = () => {
     return (
         <div className="mb-10 w-full animate-fade-in shadow-xl rounded-2xl overflow-hidden bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800">
-            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 p-6 text-white">
+            <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-yellow-500 p-6 text-white">
                 <h3 className="text-xl font-bold flex items-center gap-2">
                     <TrendingUp className="w-6 h-6" />
                     Impact & Efficiency Metrics

@@ -1,28 +1,36 @@
 package com.homegenie.userservice.service;
 
+import com.homegenie.userservice.model.Visit;
+import com.homegenie.userservice.repository.VisitRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.time.LocalDateTime;
 
 @Service
 public class VisitService {
 
-    // store IP => lastSeenEpochMillis
-    private final Map<String, Long> ipMap = new ConcurrentHashMap<>();
+    private final VisitRepository visitRepository;
 
-    // record a visit; returns current unique count
+    public VisitService(VisitRepository visitRepository) {
+        this.visitRepository = visitRepository;
+    }
+
+    @Transactional
     public int recordVisit(String ip) {
-        long now = Instant.now().toEpochMilli();
-        ipMap.put(ip, now);
-        // prune entries older than 30 days to keep memory bounded
-        long threshold = now - 30L * 24 * 60 * 60 * 1000;
-        ipMap.entrySet().removeIf(e -> e.getValue() < threshold);
-        return ipMap.size();
+        Visit visit = visitRepository.findByIp(ip)
+                .map(v -> {
+                    v.setLastSeen(LocalDateTime.now());
+                    v.setHitCount(v.getHitCount() + 1);
+                    return v;
+                })
+                .orElse(new Visit(ip));
+
+        visitRepository.save(visit);
+        return (int) visitRepository.count();
     }
 
     public int uniqueCount() {
-        return ipMap.size();
+        return (int) visitRepository.count();
     }
 }

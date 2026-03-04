@@ -151,14 +151,14 @@ public class EmailService {
     }
 
     public void sendEmail(String to, String subject, String htmlBody) {
-        try {
-            if ("ses".equalsIgnoreCase(emailProvider) && sesClient != null) {
-                sendViaSES(to, subject, htmlBody);
-            } else {
+        if ("ses".equalsIgnoreCase(emailProvider) && sesClient != null) {
+            sendViaSES(to, subject, htmlBody);
+        } else {
+            try {
                 sendViaSMTP(to, subject, htmlBody);
+            } catch (MessagingException e) {
+                throw new RuntimeException("Failed to send SMTP email", e);
             }
-        } catch (Exception e) {
-            log.error("Failed to send email to {}: {}", to, e.getMessage());
         }
     }
 

@@ -74,19 +74,23 @@ const LandingPage = () => {
             {/* Smooth Zooming Background Image */}
             <motion.div
               initial={{ scale: 1.1, opacity: 0 }}
-              animate={{ scale: 1, opacity: 0.35 }}
+              animate={{ scale: 1, opacity: isDark ? 0.7 : 0.55 }}
               transition={{ duration: 1.5, ease: "easeOut" }}
               className="absolute inset-0 -z-20 pointer-events-none w-full h-full"
             >
-              <div
-                className="absolute inset-0 w-full h-full"
-                style={{
-                  backgroundImage: `url('/background.png')`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-transparent to-slate-900 dark:from-slate-950/80 dark:to-slate-950" />
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+              >
+                <source src="/backgroundvid.mp4" type="video/mp4" />
+              </video>
+              <div className={`absolute inset-0 bg-gradient-to-b ${isDark
+                ? 'from-slate-950/60 via-transparent to-slate-950'
+                : 'from-white/40 via-transparent to-white'
+                }`} />
             </motion.div>
 
             {/* Content Container */}
@@ -97,7 +101,7 @@ const LandingPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100/10 border border-slate-200/20 backdrop-blur-md mb-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50/50 dark:bg-slate-100/10 border border-blue-100 dark:border-slate-200/20 backdrop-blur-md mb-8">
                   <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
                   <span className="text-sm font-medium text-slate-900 dark:text-slate-100">Intelligent Living Evolved</span>
                 </div>
