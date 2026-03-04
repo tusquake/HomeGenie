@@ -2,6 +2,7 @@ package com.homegenie.notificationservice.consumer;
 
 import com.homegenie.notificationservice.config.PubSubConfig;
 import com.homegenie.notificationservice.event.NotificationEvent;
+import com.google.cloud.spring.pubsub.core.PubSubTemplate;
 import com.google.cloud.spring.pubsub.support.converter.JacksonPubSubMessageConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
