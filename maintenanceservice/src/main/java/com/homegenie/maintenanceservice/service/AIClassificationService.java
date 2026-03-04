@@ -24,23 +24,29 @@ public class AIClassificationService {
     private static final String HUGGINGFACE_API_URL = "https://router.huggingface.co/hf-inference/models/facebook/bart-large-mnli";
 
     private static final Map<Category, List<String>> CATEGORY_KEYWORDS = Map.of(
-            Category.PLUMBING, Arrays.asList("water", "leak", "pipe", "tap", "drain", "toilet", "sink", "bathroom", "kitchen", "faucet", "plumbing"),
-            Category.ELECTRICAL, Arrays.asList("light", "electricity", "power", "socket", "wiring", "switch", "fan", "bulb", "fuse", "electrical", "outlet"),
-            Category.CLEANING, Arrays.asList("garbage", "trash", "dirty", "clean", "sweeping", "waste", "dustbin", "mess", "sanitation"),
-            Category.SECURITY, Arrays.asList("gate", "lock", "security", "cctv", "camera", "guard", "entry", "access", "alarm", "safety"),
-            Category.CARPENTRY, Arrays.asList("door", "window", "furniture", "wood", "cabinet", "shelf", "wardrobe", "carpenter", "timber", "knob", "handle"),
+            Category.PLUMBING,
+            Arrays.asList("water", "leak", "pipe", "tap", "drain", "toilet", "sink", "bathroom", "kitchen", "faucet",
+                    "plumbing"),
+            Category.ELECTRICAL,
+            Arrays.asList("light", "electricity", "power", "socket", "wiring", "switch", "fan", "bulb", "fuse",
+                    "electrical", "outlet"),
+            Category.CLEANING,
+            Arrays.asList("garbage", "trash", "dirty", "clean", "sweeping", "waste", "dustbin", "mess", "sanitation"),
+            Category.SECURITY,
+            Arrays.asList("gate", "lock", "security", "cctv", "camera", "guard", "entry", "access", "alarm", "safety"),
+            Category.CARPENTRY,
+            Arrays.asList("door", "window", "furniture", "wood", "cabinet", "shelf", "wardrobe", "carpenter", "timber",
+                    "knob", "handle"),
             Category.PAINTING, Arrays.asList("paint", "wall", "ceiling", "color", "whitewash", "painter", "coating"),
-            Category.HVAC, Arrays.asList("ac", "air conditioning", "heating", "ventilation", "temperature", "thermostat", "hvac", "cooling")
-    );
+            Category.HVAC, Arrays.asList("ac", "air conditioning", "heating", "ventilation", "temperature",
+                    "thermostat", "hvac", "cooling"));
 
     private static final List<String> CRITICAL_KEYWORDS = Arrays.asList(
             "urgent", "emergency", "immediately", "critical", "dangerous", "leak", "fire", "electrical",
-            "gas", "no water", "no power", "flooding", "smoke", "broken", "hazard"
-    );
+            "gas", "no water", "no power", "flooding", "smoke", "broken", "hazard");
 
     private static final List<String> HIGH_PRIORITY_KEYWORDS = Arrays.asList(
-            "soon", "asap", "quickly", "important", "needed", "priority", "problem", "issue"
-    );
+            "soon", "asap", "quickly", "important", "needed", "priority", "problem", "issue");
 
     public AIClassificationService() {
         this.webClient = WebClient.builder()
@@ -72,16 +78,13 @@ public class AIClassificationService {
             List<String> candidateLabels = Arrays.asList(
                     "plumbing issue", "electrical problem", "cleaning request",
                     "security concern", "carpentry work", "painting job",
-                    "hvac issue", "general maintenance"
-            );
+                    "hvac issue", "general maintenance");
 
             Map<String, Object> requestBody = Map.of(
                     "inputs", text,
                     "parameters", Map.of(
                             "candidate_labels", candidateLabels,
-                            "multi_label", false
-                    )
-            );
+                            "multi_label", false));
 
             log.debug("Sending request to Hugging Face API");
 
@@ -145,19 +148,26 @@ public class AIClassificationService {
         for (Map.Entry<Category, List<String>> entry : CATEGORY_KEYWORDS.entrySet()) {
             int score = 0;
             for (String keyword : entry.getValue()) {
-                if (text.contains(keyword)) {
+                // Count occurrences of keyword in text
+                int lastIndex = 0;
+                while ((lastIndex = text.indexOf(keyword, lastIndex)) != -1) {
                     score++;
+                    lastIndex += keyword.length();
                 }
             }
             if (score > 0) {
                 scores.put(entry.getKey(), score);
+                // System.out.println("Category: " + entry.getKey() + ", Score: " + score);
             }
         }
 
-        return scores.entrySet().stream()
+        Category winner = scores.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse(Category.OTHERS);
+
+        // System.out.println("Winner: " + winner);
+        return winner;
     }
 
     private Priority determinePriority(String text) {
@@ -196,13 +206,20 @@ public class AIClassificationService {
     private Category mapLabelToCategory(String label) {
         String lowerLabel = label.toLowerCase();
 
-        if (lowerLabel.contains("plumbing")) return Category.PLUMBING;
-        if (lowerLabel.contains("electrical")) return Category.ELECTRICAL;
-        if (lowerLabel.contains("cleaning")) return Category.CLEANING;
-        if (lowerLabel.contains("security")) return Category.SECURITY;
-        if (lowerLabel.contains("carpentry")) return Category.CARPENTRY;
-        if (lowerLabel.contains("painting")) return Category.PAINTING;
-        if (lowerLabel.contains("hvac") || lowerLabel.contains("air")) return Category.HVAC;
+        if (lowerLabel.contains("plumbing"))
+            return Category.PLUMBING;
+        if (lowerLabel.contains("electrical"))
+            return Category.ELECTRICAL;
+        if (lowerLabel.contains("cleaning"))
+            return Category.CLEANING;
+        if (lowerLabel.contains("security"))
+            return Category.SECURITY;
+        if (lowerLabel.contains("carpentry"))
+            return Category.CARPENTRY;
+        if (lowerLabel.contains("painting"))
+            return Category.PAINTING;
+        if (lowerLabel.contains("hvac") || lowerLabel.contains("air"))
+            return Category.HVAC;
 
         return Category.OTHERS;
     }
