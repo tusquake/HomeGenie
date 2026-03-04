@@ -5,6 +5,9 @@ spring:
         enabled: false
       pubsub:
         enabled: false
+management:
+  tracing:
+    enabled: false
       storage:
         enabled: false
     gateway:

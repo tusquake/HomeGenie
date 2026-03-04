@@ -1,7 +1,0 @@
-spring:
-  cloud:
-    gcp:
-      trace:
-        enabled: false
-      pubsub:
-        enabled: false
