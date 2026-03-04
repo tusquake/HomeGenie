@@ -19,7 +19,14 @@ spring:
       ssl:
         enabled: ${REDIS_SSL:false}
 
+management:
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLING_PROBABILITY:1.0}
+
 logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
   level:
     root: WARN
     com.homegenie: INFO

@@ -109,11 +109,13 @@ management:
         enabled: true
     gateway:
       enabled: true
-  health:
-    redis:
-      enabled: false
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLING_PROBABILITY:1.0}
 
 logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
   level:
     root: INFO
     com.homegenie: DEBUG

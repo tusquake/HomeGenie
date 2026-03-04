@@ -4,6 +4,7 @@ import com.homegenie.notificationservice.config.PubSubConfig;
 import com.homegenie.notificationservice.event.NotificationEvent;
 import com.google.cloud.spring.pubsub.core.PubSubTemplate;
 import com.google.cloud.spring.pubsub.support.converter.JacksonPubSubMessageConverter;
+import com.homegenie.notificationservice.service.NotificationProcessingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class PubSubNotificationConsumer {
 
     private final PubSubTemplate pubSubTemplate;
-    private final NotificationConsumer notificationConsumer;
+    private final NotificationProcessingService notificationProcessingService;
     private final JacksonPubSubMessageConverter messageConverter;
 
     @EventListener(ApplicationReadyEvent.class)
@@ -29,7 +30,7 @@ public class PubSubNotificationConsumer {
                 NotificationEvent event = messageConverter.fromPubSubMessage(
                         message.getPubsubMessage(), NotificationEvent.class);
                 log.info("Received notification event from Pub/Sub: type={}", event.getType());
-                notificationConsumer.handleNotification(event);
+                notificationProcessingService.processNotification(event);
                 message.ack();
             } catch (Exception e) {
                 log.error("Failed to process Pub/Sub message: {}", e.getMessage(), e);
