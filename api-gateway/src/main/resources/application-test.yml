@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    gcp:
+      trace:
+        enabled: false
+      pubsub:
+        enabled: false
+      storage:
+        enabled: false
+    gateway:
+      redis-rate-limiter:
+        enabled: false
