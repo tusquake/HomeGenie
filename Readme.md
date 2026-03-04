@@ -15,13 +15,31 @@ HomeGenie is an AI-powered maintenance management platform designed for resident
 ---
 
 ## Application Flow:
-1.Register
+
+**Landing Page:**
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1a8ac4c5-a943-4615-a9b3-6305e2a64789" />
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/0ccac288-0773-4f8f-b237-db1f73c6ba91" />
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f865ef45-6ea3-4057-8c7d-624dbe42f916" />
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/d6f1060d-7ab0-47ae-8c8d-0fb7aab518d6" />
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/975319f6-8868-4ef2-a728-d508b1ece962" />
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/be9d8fd1-d1ed-482f-8ae7-511fce3afb4e" />
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/8d2086b2-3db7-4d27-b680-6acd14520516" />
+
+
+**Register**
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b0466935-8bcb-44ee-81af-bcafd721e142" />
 
-2.Login
+**Login**
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9453e72e-e274-44c2-ad8a-977353fa3ea1" />
 
-3.Dashboard (Resident)
+Dashboard (Resident)
 <img width="1898" height="1080" alt="image" src="https://github.com/user-attachments/assets/e4c3699e-0e03-42e5-b350-bd930cc3c09d" />
 
 4.Create New Request(Resident)
