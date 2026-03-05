@@ -142,8 +142,10 @@ jobs:
         run: |
           USER_URL=$(gcloud run services describe user-service --region=${{ env.GCP_REGION }} --format='value(status.url)' || echo "URL_NOT_FOUND")
           VOICE_URL=$(gcloud run services describe voice-service --region=${{ env.GCP_REGION }} --format='value(status.url)' || echo "URL_NOT_FOUND")
+          NOTIF_URL=$(gcloud run services describe notification-service --region=${{ env.GCP_REGION }} --format='value(status.url)' || echo "URL_NOT_FOUND")
           echo "Debug: USER_URL=$USER_URL"
           echo "Debug: VOICE_URL=$VOICE_URL"
+          echo "Debug: NOTIF_URL=$NOTIF_URL"
 
           gcloud run deploy maintenance-service \
             --image=${{ env.IMAGE_BASE }}/maintenance-service:${{ github.sha }} \
