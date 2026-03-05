@@ -1,0 +1,15 @@
+spring:
+  cloud:
+    gcp:
+      project-id: test-project
+      trace:
+        enabled: false
+      storage:
+        enabled: false
+      sql:
+        enabled: false
+      pubsub:
+        enabled: false
+management:
+  tracing:
+    enabled: false
