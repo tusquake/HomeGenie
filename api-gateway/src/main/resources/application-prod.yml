@@ -8,7 +8,7 @@ spring:
     redis:
       connect-timeout: 5000 # Increased timeout for production
       ssl:
-        enabled: ${REDIS_SSL:false}
+        enabled: ${REDIS_SSL:true}
   autoconfigure:
     exclude:
       - org.springframework.boot.actuate.autoconfigure.tracing.BraveAutoConfiguration
