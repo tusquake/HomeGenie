@@ -29,7 +29,7 @@ class NotificationPublisherTest {
 
     @BeforeEach
     void setUp() {
-        when(notificationClient.sendNotification(any(NotificationEvent.class)))
+        lenient().when(notificationClient.sendNotification(any(NotificationEvent.class)))
                 .thenReturn(ResponseEntity.ok(Map.of("status", "sent")));
     }
 
