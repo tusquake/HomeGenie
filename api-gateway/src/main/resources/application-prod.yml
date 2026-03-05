@@ -1,12 +1,12 @@
 spring:
   cloud:
     gcp:
-      project-id: ${SPRING_CLOUD_GCP_PROJECT_ID}
+      project-id: ${GCP_PROJECT_ID}
   data:
     redis:
       connect-timeout: 5000 # Increased timeout for production
       ssl:
-        enabled: ${REDIS_SSL:true}
+        enabled: ${REDIS_SSL:false}
 
 management:
   health:
