@@ -66,6 +66,10 @@ voice:
   assistant:
     timeout: 30000
 
+notification:
+  service:
+    url: ${NOTIFICATION_SERVICE_URL:http://localhost:8083}
+
 resilience4j:
   circuitbreaker:
     instances:

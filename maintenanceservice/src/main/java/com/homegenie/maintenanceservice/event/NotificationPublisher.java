@@ -1,27 +1,23 @@
 package com.homegenie.maintenanceservice.event;
 
-import com.homegenie.maintenanceservice.config.RabbitMQConfig;
-import com.google.cloud.spring.pubsub.core.PubSubTemplate;
-import com.homegenie.maintenanceservice.config.PubSubConfig;
-import lombok.RequiredArgsConstructor;
+import com.homegenie.maintenanceservice.client.NotificationClient;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import java.util.Optional;
 
+/**
+ * Publishes notification events by calling the notification-service directly
+ * via Feign HTTP client.
+ * This replaces the previous RabbitMQ/PubSub messaging approach.
+ */
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class NotificationPublisher {
 
-        private final Optional<RabbitTemplate> rabbitTemplate;
-        private final Optional<PubSubTemplate> pubSubTemplate;
-
-        @Value("${spring.profiles.active:default}")
-        private String activeProfile;
+        @Autowired
+        private NotificationClient notificationClient;
 
         public void publishNewRequest(String adminEmail, String residentName, String title,
                         String category, String priority, Long requestId) {
@@ -37,8 +33,7 @@ public class NotificationPublisher {
                                                 "priority", priority,
                                                 "requestId", String.valueOf(requestId)))
                                 .build();
-
-                publish(event, RabbitMQConfig.ROUTING_KEY_NEW_REQUEST);
+                send(event);
         }
 
         public void publishAssignment(String technicianEmail, String technicianName,
@@ -55,8 +50,7 @@ public class NotificationPublisher {
                                                 "priority", priority,
                                                 "requestId", String.valueOf(requestId)))
                                 .build();
-
-                publish(event, RabbitMQConfig.ROUTING_KEY_ASSIGNMENT);
+                send(event);
         }
 
         public void publishStatusChange(String residentEmail, String residentName,
@@ -73,8 +67,7 @@ public class NotificationPublisher {
                                                 "newStatus", newStatus,
                                                 "requestId", String.valueOf(requestId)))
                                 .build();
-
-                publish(event, RabbitMQConfig.ROUTING_KEY_STATUS_CHANGE);
+                send(event);
         }
 
         public void publishReminder(String adminEmail, String title, Long requestId, long hoursPending) {
@@ -88,28 +81,17 @@ public class NotificationPublisher {
                                                 "requestId", String.valueOf(requestId),
                                                 "hoursPending", String.valueOf(hoursPending)))
                                 .build();
-
-                publish(event, RabbitMQConfig.ROUTING_KEY_REMINDER);
+                send(event);
         }
 
-        private void publish(NotificationEvent event, String routingKey) {
+        private void send(NotificationEvent event) {
                 try {
-                        if (activeProfile.contains("prod") && pubSubTemplate.isPresent()) {
-                                pubSubTemplate.get().publish(PubSubConfig.NOTIFICATION_TOPIC, event);
-                                log.info("Published notification event to Pub/Sub: type={}, recipient={}",
-                                                event.getType(), event.getRecipientEmail());
-                        } else if (rabbitTemplate.isPresent()) {
-                                rabbitTemplate.get().convertAndSend(
-                                                RabbitMQConfig.NOTIFICATION_EXCHANGE,
-                                                routingKey,
-                                                event);
-                                log.info("Published notification event to RabbitMQ: type={}, recipient={}, routingKey={}",
-                                                event.getType(), event.getRecipientEmail(), routingKey);
-                        } else {
-                                log.warn("No messaging template available to publish event: type={}", event.getType());
-                        }
+                        notificationClient.sendNotification(event);
+                        log.info("Sent notification via Feign: type={}, recipient={}", event.getType(),
+                                        event.getRecipientEmail());
                 } catch (Exception e) {
-                        log.error("Failed to publish notification event: {}", e.getMessage(), e);
+                        log.error("Failed to send notification via Feign: type={}, error={}", event.getType(),
+                                        e.getMessage(), e);
                 }
         }
 }
