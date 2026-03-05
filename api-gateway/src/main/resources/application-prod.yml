@@ -1,4 +1,6 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
   cloud:
     gcp:
       project-id: ${GCP_PROJECT_ID}
@@ -26,3 +28,4 @@ logging:
     root: INFO
     com.homegenie: INFO
     org.springframework.cloud.gateway: INFO
+    org.springframework: DEBUG
