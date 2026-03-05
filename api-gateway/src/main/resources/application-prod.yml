@@ -6,9 +6,14 @@ spring:
       project-id: ${GCP_PROJECT_ID}
   data:
     redis:
-      connect-timeout: 5000 # Increased timeout for production
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD}
       ssl:
-        enabled: ${REDIS_SSL:true}
+        enabled: true
+      lettuce:
+        pool:
+          enabled: false
   autoconfigure:
     exclude:
       - org.springframework.boot.actuate.autoconfigure.tracing.BraveAutoConfiguration
@@ -16,7 +21,7 @@ spring:
 management:
   health:
     redis:
-      enabled: false # Disable Redis health check to prevent startup probe failure if Redis is slow to connect
+      enabled: false
   tracing:
     brave:
       enabled: false
