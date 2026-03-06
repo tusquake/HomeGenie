@@ -13,7 +13,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("prod")
+@Profile("pubsub")
 @RequiredArgsConstructor
 @Slf4j
 public class PubSubNotificationConsumer {

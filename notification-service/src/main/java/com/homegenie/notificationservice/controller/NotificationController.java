@@ -52,24 +52,27 @@ public class NotificationController {
         String datetime = payload.get("datetime");
 
         log.info("Received demo request from: {}", email);
+        String safeDatetime = datetime != null ? datetime.replace("T", " ") : "Not specified";
 
+        // Send emails — failures are non-fatal; the demo request is still registered
         try {
-            String safeDatetime = datetime != null ? datetime.replace("T", " ") : "Not specified";
-
             String adminBody = String.format(
                     "<h2>New Demo Request</h2><p><strong>Name:</strong> %s</p><p><strong>Email:</strong> %s</p><p><strong>Preferred Date &amp; Time:</strong> %s</p><p><strong>Message:</strong> %s</p>",
                     name, email, safeDatetime, message);
             emailService.sendEmail("sethtushar111@gmail.com", "New Demo Request from " + name, adminBody);
+        } catch (Exception e) {
+            log.error("Failed to send admin notification for demo request from {}: {}", email, e.getMessage());
+        }
 
+        try {
             String userBody = String.format(
                     "<h2>Demo Request Received</h2><p>Hi %s,</p><p>Thank you for your interest in HomeGenie! We have received your demo request for <strong>%s</strong>. We will be in touch shortly to confirm this time.</p><p>Best,<br>The HomeGenie Team</p>",
                     name, safeDatetime);
             emailService.sendEmail(email, "HomeGenie Demo Request Confirmation", userBody);
-
-            return ResponseEntity.ok(Map.of("message", "Demo request processed successfully"));
         } catch (Exception e) {
-            log.error("Failed to process demo request", e);
-            return ResponseEntity.internalServerError().body(Map.of("error", "Failed to process request"));
+            log.error("Failed to send confirmation email to {}: {}", email, e.getMessage());
         }
+
+        return ResponseEntity.ok(Map.of("message", "Demo request received successfully! We will be in touch shortly."));
     }
 }
