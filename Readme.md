@@ -34,22 +34,34 @@ HomeGenie is an AI-powered maintenance management platform designed for resident
 
 
 **Register**
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b0466935-8bcb-44ee-81af-bcafd721e142" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/bd823f2d-9d6c-4867-876b-abde775e2b77" />
+
 
 **Login**
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/9453e72e-e274-44c2-ad8a-977353fa3ea1" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7b3c51a9-22e6-460b-9c7a-743d6a5eddcc" />
 
-Dashboard (Resident)
-<img width="1898" height="1080" alt="image" src="https://github.com/user-attachments/assets/e4c3699e-0e03-42e5-b350-bd930cc3c09d" />
 
-4.Create New Request(Resident)
-<img width="1903" height="1080" alt="image" src="https://github.com/user-attachments/assets/a75ef4fd-89f7-4786-a062-c512d7fab699" />
+**Dashboard (Resident)**
+<img width="1893" height="1059" alt="image" src="https://github.com/user-attachments/assets/a0eeb3b2-c2bf-4340-a8ca-5b4db936e5ec" />
 
-5.Dashboard (Admin)
-<img width="1891" height="1079" alt="image" src="https://github.com/user-attachments/assets/2a387206-836f-4506-981c-b6e3b5f5559b" />
+<img width="1471" height="750" alt="image" src="https://github.com/user-attachments/assets/e84f53f6-1582-41a6-b14d-33a2ad607c56" />
 
-6.Assign Technician
-<img width="1895" height="1078" alt="image" src="https://github.com/user-attachments/assets/015232f2-a601-4032-84d9-01f0feada49f" />
+
+**Create New Request(Resident)**
+<img width="1902" height="1080" alt="image" src="https://github.com/user-attachments/assets/f6f296c7-6eb6-4ffb-8057-6a8cebdb8acb" />
+
+
+**Dashboard (Admin)**
+<img width="1893" height="1080" alt="image" src="https://github.com/user-attachments/assets/3bc1887e-74d7-47b7-9c34-01c3fe36e824" />
+
+
+**Assign Technician**
+<img width="1897" height="1080" alt="image" src="https://github.com/user-attachments/assets/2dde2479-d6e7-4442-a54b-31b4b09b4953" />
+
+
+**Technician Dashboard**
+<img width="1895" height="1080" alt="image" src="https://github.com/user-attachments/assets/ec1342e2-37ee-46f9-8ba7-a48c7b4535b2" />
+
 
 7.Voice Assitant
 <img width="1902" height="1079" alt="image" src="https://github.com/user-attachments/assets/4b42d4e0-a911-42fd-b512-58eb66bc1d34" />
@@ -58,15 +70,30 @@ Dashboard (Resident)
 
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/be46800c-233d-49d4-933d-57a3310ac7f2" />
 
-Email Notifications:
-User-> Admin (on request creation)
+**Email Notifications(Demo Request):**
+
+**To Requestor**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/62cfa879-286f-4462-a359-01a4ec8840ba" />
+
+
+**To Admin**
+<img width="1920" height="1074" alt="image" src="https://github.com/user-attachments/assets/6072e25b-1f92-42da-916a-86c4d2be4d62" />
+
+
+**Email Notifications(Maintenance Request):**
+
+**User-> Admin (on request creation)**
 <img width="1838" height="840" alt="image" src="https://github.com/user-attachments/assets/cfa1f126-2a56-47fd-bac1-7cbc3bc5d903" />
 
-Admin-> Technician (on assigning request)
-<img width="1842" height="826" alt="image" src="https://github.com/user-attachments/assets/a660efbc-69ce-4276-8517-b9328c4068a5" />
 
-Admin-> User(on request status update)
-<img width="1832" height="800" alt="image" src="https://github.com/user-attachments/assets/d46d7064-9181-4bcf-93dd-9b35be7789c8" />
+**Admin-> Technician (on assigning request)**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b2593964-6e9e-40c8-b09d-6933acefcf1b" />
+
+
+**Admin-> User(on request status update)**
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/58629a37-cdff-4d45-b562-2145eb589c40" />
+
+
 
 Monitoring:
 
