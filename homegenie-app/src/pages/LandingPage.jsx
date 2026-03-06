@@ -14,12 +14,13 @@ const LandingPage = () => {
   // Fallback random values within realistic ranges, stable across re-renders
   const randomInRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
   const [metrics, setMetrics] = useState(() => ({
-    users:    randomInRange(180, 350),
+    users: randomInRange(180, 350),
     requests: randomInRange(400, 900),
     resolved: randomInRange(300, 750),
-    time:     randomInRange(1200, 4000),
+    time: randomInRange(1200, 4000),
   }));
   const [isVisible, setIsVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
@@ -361,6 +362,7 @@ const LandingPage = () => {
                     const message = form.message.value.trim();
                     if (!name || !email || !datetime) return toast.error('Please fill required fields (Name, Email, Date/Time)');
 
+                    setIsSubmitting(true);
                     try {
                       const response = await fetch(`${API_BASE_USER}/notifications/demo`, {
                         method: 'POST',
@@ -377,6 +379,8 @@ const LandingPage = () => {
                       form.reset();
                     } catch (err) {
                       toast.error('A network error occurred.');
+                    } finally {
+                      setIsSubmitting(false);
                     }
                   }}>
                     <div className="space-y-4">
@@ -385,7 +389,21 @@ const LandingPage = () => {
                       <input name="datetime" type="datetime-local" required className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500" />
                     </div>
                     <textarea name="message" placeholder="Tell us about your property (optional)" rows="3" className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" />
-                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-all duration-300 hover:shadow-lg mt-2">Book Demo</button>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-all duration-300 hover:shadow-lg mt-2 flex items-center justify-center gap-2"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                          </svg>
+                          Sending...
+                        </>
+                      ) : 'Book Demo'}
+                    </button>
                   </form>
                 </div>
               </div>
