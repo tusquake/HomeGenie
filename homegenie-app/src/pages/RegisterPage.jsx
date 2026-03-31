@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, Mail, Lock, User, Phone, Building2, Shield, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Home, Mail, Lock, User, Phone, Building2, Shield, ArrowRight, Eye, EyeOff, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 
@@ -16,7 +16,8 @@ const RegisterPage = () => {
         fullName: '',
         phoneNumber: '',
         flatNumber: '',
-        role: 'RESIDENT'
+        role: 'RESIDENT',
+        profilePictureUrl: ''
     });
     const [showPassword, setShowPassword] = useState(false);
 
@@ -171,6 +172,21 @@ const RegisterPage = () => {
                                         <option value="TECHNICIAN">Technician</option>
                                         <option value="ADMIN">Admin</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            {/* Profile Picture Field */}
+                            <div className="space-y-2 sm:col-span-2">
+                                <label className="text-sm font-semibold text-gray-700 block">Profile Picture URL (Optional)</label>
+                                <div className="relative">
+                                    <ImageIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                    <input
+                                        type="url"
+                                        placeholder="https://example.com/photo.jpg"
+                                        className="input-field pl-12"
+                                        value={form.profilePictureUrl}
+                                        onChange={updateField('profilePictureUrl')}
+                                    />
                                 </div>
                             </div>
 

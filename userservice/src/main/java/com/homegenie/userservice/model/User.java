@@ -20,11 +20,15 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String password;
 
     @Column(nullable = false)
     private String fullName;
+
+    private String profilePictureUrl;
+
+    private String authProvider = "LOCAL";
 
     @Column(nullable = false)
     private String phoneNumber;

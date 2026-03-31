@@ -11,6 +11,7 @@ public class UserResponse {
     private String flatNumber;
     private String role;
     private String specialty;
+    private String profilePictureUrl;
     private boolean active;
     private boolean emailNotificationsEnabled;
 }

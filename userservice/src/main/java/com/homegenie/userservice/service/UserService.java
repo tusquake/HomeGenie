@@ -117,6 +117,12 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public UserResponse getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+        return mapToUserResponse(user);
+    }
+
     private UserResponse mapToUserResponse(User user) {
         UserResponse response = new UserResponse();
         response.setId(user.getId());
@@ -126,6 +132,7 @@ public class UserService {
         response.setFlatNumber(user.getFlatNumber());
         response.setRole(user.getRole().name());
         response.setSpecialty(user.getSpecialty());
+        response.setProfilePictureUrl(user.getProfilePictureUrl());
         response.setActive(user.isActive());
         response.setEmailNotificationsEnabled(user.isEmailNotificationsEnabled());
         return response;

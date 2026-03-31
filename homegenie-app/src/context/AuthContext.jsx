@@ -77,10 +77,27 @@ export const AuthProvider = ({ children }) => {
         return fetch(url, { ...options, headers });
     };
 
+    const loginWithToken = async (token) => {
+        // Decode token or fetch user details using the token
+        const res = await fetch(`${API_BASE_USER}/users/me`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+            throw new Error('Failed to fetch user details');
+        }
+
+        const userData = await res.json();
+        const fullAuthData = { ...userData, token };
+        localStorage.setItem('homegenieUser', JSON.stringify(fullAuthData));
+        setUser(fullAuthData);
+        return fullAuthData;
+    };
+
     if (loading) return null;
 
     return (
-        <AuthContext.Provider value={{ user, login, register, logout, authFetch }}>
+        <AuthContext.Provider value={{ user, login, register, logout, authFetch, loginWithToken }}>
             {children}
         </AuthContext.Provider>
     );

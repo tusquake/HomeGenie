@@ -23,6 +23,12 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getMe(org.springframework.security.core.Authentication authentication) {
+        String email = authentication.getName();
+        return ResponseEntity.ok(userService.getUserByEmail(email));
+    }
+
     @GetMapping("/technicians")
     public ResponseEntity<List<UserResponse>> getAllTechnicians() {
         return ResponseEntity.ok(userService.getAllTechnicians());

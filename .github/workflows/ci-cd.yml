@@ -98,7 +98,7 @@ jobs:
             --platform=managed \
             --allow-unauthenticated \
             --add-cloudsql-instances=${{ secrets.CLOUD_SQL_INSTANCE }} \
-            --set-env-vars="SPRING_PROFILES_ACTIVE=prod,GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }},CLOUD_SQL_ENABLED=true,CLOUD_SQL_INSTANCE=${{ secrets.CLOUD_SQL_INSTANCE }},CLOUD_SQL_DB=homegenie_users,DB_USERNAME=${{ secrets.DB_USERNAME }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},JWT_SECRET=${{ secrets.JWT_SECRET }}" \
+            --set-env-vars="SPRING_PROFILES_ACTIVE=prod,GCP_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }},CLOUD_SQL_ENABLED=true,CLOUD_SQL_INSTANCE=${{ secrets.CLOUD_SQL_INSTANCE }},CLOUD_SQL_DB=homegenie_users,DB_USERNAME=${{ secrets.DB_USERNAME }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},JWT_SECRET=${{ secrets.JWT_SECRET }},GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }},GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" \
             --liveness-probe="httpGet.path=/actuator/health/liveness" \
             --startup-probe="httpGet.path=/actuator/health/liveness,failureThreshold=25,periodSeconds=10" \
             --quiet

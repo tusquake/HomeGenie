@@ -2,6 +2,10 @@ server:
   port: ${PORT:8081}
   forward-headers-strategy: framework
 
+app:
+  frontend:
+    url: ${FRONTEND_URL:https://homegenie-ucu3.onrender.com}
+
 spring:
   application:
     name: user-service
@@ -23,6 +27,17 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
 
 jwt:
   secret: ${JWT_SECRET:homegenie-secret-key-change-in-production-minimum-32-chars}
