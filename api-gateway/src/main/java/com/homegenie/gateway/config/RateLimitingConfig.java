@@ -17,9 +17,13 @@ public class RateLimitingConfig {
             if (userId != null && !userId.isEmpty()) {
                 return Mono.just(userId);
             }
-            String ip = exchange.getRequest().getRemoteAddress() != null
-                    ? exchange.getRequest().getRemoteAddress().getAddress().getHostAddress()
-                    : "unknown";
+            String ip = "unknown";
+            if (exchange.getRequest().getRemoteAddress() != null
+                    && exchange.getRequest().getRemoteAddress().getAddress() != null) {
+                ip = exchange.getRequest().getRemoteAddress().getAddress().getHostAddress();
+            } else if (exchange.getRequest().getHeaders().getFirst("X-Forwarded-For") != null) {
+                ip = exchange.getRequest().getHeaders().getFirst("X-Forwarded-For").split(",")[0].trim();
+            }
             return Mono.just(ip);
         };
     }
