@@ -21,6 +21,7 @@ public class SecurityConfig {
 
         private final CustomOAuth2UserService customOAuth2UserService;
         private final OAuth2AuthenticationSuccessHandler oauth2AuthenticationSuccessHandler;
+        private final HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository;
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -28,7 +29,7 @@ public class SecurityConfig {
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .csrf(csrf -> csrf.disable())
                                 .sessionManagement(session -> session
-                                                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/auth/**", "/oauth2/**", "/login/oauth2/**")
                                                 .permitAll()
@@ -41,7 +42,10 @@ public class SecurityConfig {
                                                 .anyRequest().authenticated())
                                 .oauth2Login(oauth2 -> oauth2
                                                 .authorizationEndpoint(authorization -> authorization
-                                                                .baseUri("/oauth2/authorization"))
+                                                                .baseUri("/oauth2/authorization")
+                                                                .authorizationRequestRepository(cookieAuthorizationRequestRepository))
+                                                .redirectionEndpoint(redirection -> redirection
+                                                                .baseUri("/login/oauth2/code/*"))
                                                 .userInfoEndpoint(userInfo -> userInfo
                                                                 .userService(customOAuth2UserService))
                                                 .successHandler(oauth2AuthenticationSuccessHandler));
@@ -67,4 +71,4 @@ public class SecurityConfig {
         public PasswordEncoder passwordEncoder() {
                 return new BCryptPasswordEncoder();
         }
-}
+}
