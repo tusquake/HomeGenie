@@ -4,7 +4,7 @@ import com.homegenie.userservice.model.User;
 import com.homegenie.userservice.model.UserRole;
 import com.homegenie.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -19,7 +19,6 @@ import java.util.UUID;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -51,7 +50,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setActive(true);
             // Set a random hashed password to satisfy DB NOT NULL constraint
             // This password can never be used to login (nobody knows the UUID)
-            user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
+            user.setPassword(new BCryptPasswordEncoder().encode(UUID.randomUUID().toString()));
         }
         userRepository.save(user);
 
