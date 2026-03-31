@@ -33,8 +33,18 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getMe(org.springframework.security.core.Authentication authentication) {
-        String email = authentication.getName();
+    public ResponseEntity<UserResponse> getMe(
+            org.springframework.security.core.Authentication authentication,
+            @org.springframework.web.bind.annotation.RequestHeader(value = "X-User-Email", required = false) String userEmail) {
+        // Prefer X-User-Email header (set by Gateway after JWT validation)
+        // Fall back to Authentication if available (e.g., during OAuth2 flow)
+        String email = userEmail;
+        if (email == null && authentication != null) {
+            email = authentication.getName();
+        }
+        if (email == null) {
+            return ResponseEntity.status(401).build();
+        }
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
