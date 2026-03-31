@@ -18,6 +18,15 @@ public class UserController {
 
     private final UserService userService;
 
+    @org.springframework.beans.factory.annotation.Value("${GOOGLE_CLIENT_ID:NOT_SET}")
+    private String googleClientId;
+
+    @GetMapping("/debug/oauth")
+    public ResponseEntity<String> debugOAuth() {
+        return ResponseEntity.ok("Google Client ID is: " + 
+            (googleClientId.equals("NOT_SET") ? "MISSING" : "CONFIGURED (Starts with: " + googleClientId.substring(0, 4) + ")"));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));
