@@ -4,6 +4,7 @@ import com.homegenie.userservice.model.User;
 import com.homegenie.userservice.model.UserRole;
 import com.homegenie.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -11,12 +12,14 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -44,8 +47,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             user.setProfilePictureUrl(picture);
             user.setAuthProvider("GOOGLE");
             user.setRole(UserRole.RESIDENT);
-            user.setPhoneNumber("N/A"); // Default for OAuth users
+            user.setPhoneNumber("N/A");
             user.setActive(true);
+            // Set a random hashed password to satisfy DB NOT NULL constraint
+            // This password can never be used to login (nobody knows the UUID)
+            user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
         }
         userRepository.save(user);
 
