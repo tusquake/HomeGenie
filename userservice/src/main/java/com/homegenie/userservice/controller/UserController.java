@@ -1,13 +1,11 @@
 package com.homegenie.userservice.controller;
 
 import com.homegenie.userservice.dto.UserResponse;
+import com.homegenie.userservice.security.JwtUtil;
 import com.homegenie.userservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -17,6 +15,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
     @org.springframework.beans.factory.annotation.Value("${GOOGLE_CLIENT_ID:NOT_SET}")
     private String googleClientId;
@@ -34,14 +33,22 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getMe(
-            org.springframework.security.core.Authentication authentication,
-            @org.springframework.web.bind.annotation.RequestHeader(value = "X-User-Email", required = false) String userEmail) {
-        // Prefer X-User-Email header (set by Gateway after JWT validation)
-        // Fall back to Authentication if available (e.g., during OAuth2 flow)
+            @RequestHeader(value = "X-User-Email", required = false) String userEmail,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         String email = userEmail;
-        if (email == null && authentication != null) {
-            email = authentication.getName();
+
+        // If Gateway didn't set X-User-Email, extract from JWT directly
+        if (email == null && authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            try {
+                if (jwtUtil.validateToken(token)) {
+                    email = jwtUtil.getEmailFromToken(token);
+                }
+            } catch (Exception e) {
+                return ResponseEntity.status(401).build();
+            }
         }
+
         if (email == null) {
             return ResponseEntity.status(401).build();
         }
