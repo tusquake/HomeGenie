@@ -22,6 +22,7 @@ public class SecurityConfig {
         private final CustomOAuth2UserService customOAuth2UserService;
         private final OAuth2AuthenticationSuccessHandler oauth2AuthenticationSuccessHandler;
         private final HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository;
+        private final OAuth2AuthenticationFailureHandler oauth2AuthenticationFailureHandler;
 
         @Bean
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -48,7 +49,8 @@ public class SecurityConfig {
                                                                 .baseUri("/login/oauth2/code/*"))
                                                 .userInfoEndpoint(userInfo -> userInfo
                                                                 .userService(customOAuth2UserService))
-                                                .successHandler(oauth2AuthenticationSuccessHandler));
+                                                .successHandler(oauth2AuthenticationSuccessHandler)
+                                                .failureHandler(oauth2AuthenticationFailureHandler));
                 return http.build();
         }
 
