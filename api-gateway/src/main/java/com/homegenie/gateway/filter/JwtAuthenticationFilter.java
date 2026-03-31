@@ -37,7 +37,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             "/swagger-ui.html",
             "/webjars",
             "/actuator",
-            "/health");
+            "/health",
+            "/oauth2/authorization",
+            "/login/oauth2");
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
