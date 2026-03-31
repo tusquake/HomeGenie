@@ -21,7 +21,6 @@ public class SecurityConfig {
 
         private final CustomOAuth2UserService customOAuth2UserService;
         private final OAuth2AuthenticationSuccessHandler oauth2AuthenticationSuccessHandler;
-        private final HttpCookieOAuth2AuthorizationRequestRepository cookieAuthorizationRequestRepository;
         private final OAuth2AuthenticationFailureHandler oauth2AuthenticationFailureHandler;
 
         @Bean
@@ -30,7 +29,7 @@ public class SecurityConfig {
                                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                                 .csrf(csrf -> csrf.disable())
                                 .sessionManagement(session -> session
-                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/api/auth/**", "/oauth2/**", "/login/oauth2/**")
                                                 .permitAll()
@@ -43,8 +42,7 @@ public class SecurityConfig {
                                                 .anyRequest().authenticated())
                                 .oauth2Login(oauth2 -> oauth2
                                                 .authorizationEndpoint(authorization -> authorization
-                                                                .baseUri("/oauth2/authorization")
-                                                                .authorizationRequestRepository(cookieAuthorizationRequestRepository))
+                                                                .baseUri("/oauth2/authorization"))
                                                 .redirectionEndpoint(redirection -> redirection
                                                                 .baseUri("/login/oauth2/code/*"))
                                                 .userInfoEndpoint(userInfo -> userInfo
@@ -73,4 +71,5 @@ public class SecurityConfig {
         public PasswordEncoder passwordEncoder() {
                 return new BCryptPasswordEncoder();
         }
-}
+}
+
