@@ -52,6 +52,13 @@ public class HttpCookieOAuth2AuthorizationRequestRepository
         data.put("state", authorizationRequest.getState());
         data.put("grantType", authorizationRequest.getGrantType().getValue());
 
+        // CRITICAL: Store the registration_id attribute — Spring Security needs
+        // this to look up which provider ("google") to use for the token exchange
+        Map<String, Object> attributes = authorizationRequest.getAttributes();
+        if (attributes != null && attributes.containsKey("registration_id")) {
+            data.put("registrationId", (String) attributes.get("registration_id"));
+        }
+
         // Store scopes as comma-separated
         if (authorizationRequest.getScopes() != null) {
             data.put("scopes", String.join(",", authorizationRequest.getScopes()));
@@ -108,6 +115,12 @@ public class HttpCookieOAuth2AuthorizationRequestRepository
 
                     if (data.containsKey("scopes") && data.get("scopes") != null) {
                         builder.scopes(java.util.Set.of(data.get("scopes").split(",")));
+                    }
+
+                    // CRITICAL: Restore the registration_id attribute
+                    if (data.containsKey("registrationId")) {
+                        builder.attributes(attrs -> 
+                            attrs.put("registration_id", data.get("registrationId")));
                     }
 
                     return builder.build();
